@@ -31,6 +31,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import Schedule from "./pages/Admin/Schedule";
 import SchoolDetails from "./pages/Admin/SchoolDetails/SchoolDetails";
 import Login from "./pages/Login";
+import Curriculum from "./pages/Admin/Curriculum/Curriculum";
 
 function App() {
   const role = "admin"
@@ -127,6 +128,8 @@ if (role == "admin") {
             <Route path="/mycourse" element={<ClassroomProject />} />
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/schooldetails" element={<SchoolDetails />} />
+            <Route path="/curriculum" element={<Curriculum />} />
+
 
 
           </Routes>

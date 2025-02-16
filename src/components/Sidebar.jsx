@@ -37,7 +37,8 @@ const activeMapper = {
     "Dashboard": "/",
     "Classroom Project" : "/mycourse",
     "Schedule": "/schedule",
-    "School Details": "/schooldetails"
+    "School Details": "/schooldetails",
+    "Curriculum": "/curriculum"
 }
 
 export function SidebarItem({  icon, text }) {
