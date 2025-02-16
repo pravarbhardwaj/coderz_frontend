@@ -1,6 +1,6 @@
-import Slider from "../components/Slider";
-import CircularProgressBar from "../components/CircularProgressBar";
-import SearchBar from "../components/SearchBar";
+import Slider from "../../components/Slider";
+import CircularProgressBar from "../../components/CircularProgressBar";
+import SearchBar from "../../components/SearchBar";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 

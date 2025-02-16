@@ -6,7 +6,6 @@ import { ReactSketchCanvas } from "react-sketch-canvas";
 const slides = [
   { id: 1, type: "image", src: "https://w0.peakpx.com/wallpaper/410/412/HD-wallpaper-plain-black-black.jpg", audio: "audio1.mp3" },
   { id: 2, type: "video", src: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", audio: "audio2.mp3" },
-  // Add more slides as needed
 ];
 
 
@@ -72,15 +71,11 @@ const PPTViewer = () => {
         <div className="flex gap-4 mt-4">
           <button onClick={() => setCurrentSlide((prev) => Math.max(prev - 1, 0))} className="bg-gray-300 px-4 py-2 rounded-md">Back</button>
           <button onClick={() => setCurrentSlide((prev) => Math.min(prev + 1, slides.length - 1))} className="bg-blue-500 text-white px-4 py-2 rounded-md">Next</button>
-        </div>
-  
-        <div className="flex gap-4 mt-4">
+    
           <button onClick={toggleFullScreen} className="bg-gray-600 text-white px-4 py-2 rounded-md">Full Screen</button>
           <button onClick={handleMute} className="bg-gray-500 text-white px-4 py-2 rounded-md">{isMuted ? "Unmute" : "Mute"}</button>
           <input type="range" min="0" max="1" step="0.1" value={volume} onChange={handleVolumeChange} className="w-24" />
-        </div>
-  
-        <div className="mt-4">
+     
           <button onClick={() => document.getElementById("slideSelector").showModal()} className="bg-gray-400 text-white px-4 py-2 rounded-md">Select Slide</button>
         </div>
   
