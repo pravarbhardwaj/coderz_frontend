@@ -139,9 +139,10 @@ function App() {
       <Routes>
         <Route element={<Login setUserRole={setUserRole} />} path="/login" />
 
-        {(!userRole || !["Student", "Teacher", "Admin"].includes(userRole)) && (
+        {(!userRole || !["Student", "Teacher", "Admin"].includes(userRole)) ? (
           <Route element={<Login setUserRole={setUserRole} />} path="*" />
-        )}
+        ):
+        <Route element={<h1>Page Not Found!</h1>} path="*" />}
         {role == "Student" && (
           <>
             <Route
@@ -217,6 +218,16 @@ function App() {
                 </div>
               }
               path="/curriculum"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<SchoolDetails />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/schooldetails"
             />
           </>
         )}
