@@ -1,15 +1,23 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { loginApi } from "../request";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+
+const Login = ({setUserRole}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleSubmit = (e) => {
+    const navigate = useNavigate();
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ email, password, rememberMe });
+    const response = await loginApi(email, password, setUserRole)
+    console.log({ response });
+    if (response) {
+      navigate("/")
+    }
   };
 
   return (
@@ -20,7 +28,7 @@ const Login = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
-              type="email"
+              // type="email"
               className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
