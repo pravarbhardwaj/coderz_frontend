@@ -15,6 +15,9 @@ import {
   ChartLine,
   MonitorPlay,
   LogIn,
+  LogOut,
+  ListCheck,
+  Upload,
 } from "lucide-react";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import Home from "./pages/Student/Home";
@@ -31,9 +34,13 @@ import ClassroomProject from "./pages/Student/ClassroomProject/ClassroomProject"
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import Schedule from "./pages/Admin/Schedule";
 import SchoolDetails from "./pages/Admin/SchoolDetails/SchoolDetails";
-import Login from "./pages/Login";
+import Login from "./pages/Login/Login";
 import Curriculum from "./pages/Admin/Curriculum/Curriculum";
 import MyProjects from "./pages/Student/MyProjects/MyProjects";
+import LoginSSO from "./pages/Login/LoginSSO";
+import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
+import ProjectReview from "./pages/Teacher/ProjectReview/ProjectReview";
+import UploadProject from "./pages/Teacher/UploadProject";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -42,8 +49,7 @@ function App() {
   const PrivateWrapper = () => {
     const access = localStorage.getItem("access");
     const refresh = localStorage.getItem("refresh");
-    console.log("here?", ["Admin", "Student", "Techer"].includes(role));
-    return access && refresh && role ? <Outlet /> : <Navigate to="/login" />;
+    // return access && refresh && role ? <Outlet /> : <Navigate to="/login" />;
   };
 
   const SideBar = ({ element }) => {
@@ -53,7 +59,7 @@ function App() {
 
     return (
       <div className="flex">
-        <div className="flex">
+        <div className="sticky top-0 h-full">
           <Sidebar>
             {role == "Student" && (
               <>
@@ -85,10 +91,42 @@ function App() {
                   icon={<Settings size={20} />}
                   text="Notifications"
                 />
+                <div className="flex h-full">
+                  <div className="mt-auto">
+                    <SidebarItem icon={<LogOut size={20} />} text="Logout" />
+                  </div>
+                </div>
               </>
             )}
 
-            {role == "Admin" && (
+            {role == "Teacher" && (
+              <>
+                <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
+                <SidebarItem
+                  icon={<ListCheck size={20} />}
+                  text="Project Review"
+                />
+
+                <SidebarItem
+                  icon={<Upload size={20} />}
+                  text="Upload Project"
+                />
+
+                <hr className="my-3" />
+                <SidebarItem
+                  icon={<Settings size={20} />}
+                  text="Notifications"
+                />
+                <div className="flex h-full">
+                  <div className="mt-auto">
+                    <SidebarItem icon={<LogOut size={20} />} text="Logout" />
+                  </div>
+                </div>
+              </>
+            
+            )}
+
+            {/* {role == "Admin" && ( */}
               <>
                 <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
                 <SidebarItem icon={<Book size={20} />} text="Schedule" />
@@ -116,11 +154,16 @@ function App() {
                   icon={<Settings size={20} />}
                   text="Notifications"
                 />
+                <div className="flex h-full">
+                  <div className="mt-auto">
+                    <SidebarItem icon={<LogOut size={20} />} text="Logout" />
+                  </div>
+                </div>
               </>
-            )}
+            {/* )} */}
           </Sidebar>
         </div>
-        <div className="w-full py-5 px-10">
+        <div className="w-full py-5 px-10 overflow-y-auto h-full">
           <div className="flex">
             <div>
               <div className="font-bold text-xl">SESL-US GLOBAL SCHOOL</div>
@@ -138,11 +181,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Login setUserRole={setUserRole} />} path="/login" />
+        <Route element={<LoginSSO />} path="/loginsso" />
 
-        {(!userRole || !["Student", "Teacher", "Admin"].includes(userRole)) ? (
+        {!userRole || !["Student", "Teacher", "Admin"].includes(userRole) ? (
           <Route element={<Login setUserRole={setUserRole} />} path="*" />
-        ):
-        <Route element={<h1>Page Not Found!</h1>} path="*" />}
+        ) : (
+          <Route element={<h1>Page Not Found!</h1>} path="*" />
+        )}
         {role == "Student" && (
           <>
             <Route
@@ -177,7 +222,7 @@ function App() {
             />
           </>
         )}
-        {role == "Admin" && (
+        {/* {role == "Admin" && ( */}
           <>
             <Route
               element={
@@ -229,6 +274,40 @@ function App() {
               }
               path="/schooldetails"
             />
+          </>
+        {/* )} */}
+
+        {role == "Teacher" && (
+          <>
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<TeacherDashboard />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<ProjectReview />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/projectreview"
+            /><Route
+            element={
+              <div>
+                <PrivateWrapper />
+                <SideBar element={<UploadProject />} />
+                <PrivateWrapper />
+              </div>
+            }
+            path="/uploadproject"
+          />
           </>
         )}
         <Route path="*" element={<Navigate to="/login" replace />} />

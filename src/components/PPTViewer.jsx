@@ -2,12 +2,24 @@ import React, { useState, useRef, useEffect } from "react";
 import screenfull from "screenfull";
 import { SketchPicker } from "react-color";
 import { ReactSketchCanvas } from "react-sketch-canvas";
+import { Presentation, Slide, Text } from "react-pptx";
+
 
 const slides = [
   { id: 1, type: "image", src: "https://w0.peakpx.com/wallpaper/410/412/HD-wallpaper-plain-black-black.jpg", audio: "audio1.mp3" },
   { id: 2, type: "video", src: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", audio: "audio2.mp3" },
 ];
 
+
+const PowerPointEmbed = () => {
+  return (
+    <iframe
+      src="https://view.officeapps.live.com/op/embed.aspx?src=https://www.dickinson.edu/download/downloads/id/1076/sample_powerpoint_slides.pptx"
+      width="100%"
+      height="600px"
+    />
+  );
+};
 
 
 const PPTViewer = () => {
@@ -49,11 +61,14 @@ const PPTViewer = () => {
     return (
       <div className="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
         <div className="relative w-full max-w-3xl bg-white shadow-lg rounded-lg p-4 z-0">
-          {slides[currentSlide].type === "image" ? (
+          {/* {
+          slides[currentSlide].type === "image" ? (
             <img src={slides[currentSlide].src} alt="Slide" className="w-full rounded-md" onDragStart={(event)=> event.preventDefault()}/>
           ) : (
             <video ref={videoRef} src={slides[currentSlide].src} controls className="w-full mt-2 rounded-md"></video>
-          )}
+          )} */}
+
+            <PowerPointEmbed />
           <audio ref={audioRef} src={slides[currentSlide].audio} autoPlay hidden></audio>
           {isDrawing && (
             <ReactSketchCanvas

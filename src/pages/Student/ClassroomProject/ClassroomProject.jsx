@@ -1,10 +1,20 @@
 import ClassroomCard from "../../../components/ClassroomCard";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProjectPage from "./ProjectPage";
+import axiosConfig from "../../../request/request";
 
 function ClassroomProject() {
   const [project, setProject] = useState(false);
   const [projectId, setProjectId] = useState();
+  
+  const getData = async () => {
+    const response = await axiosConfig.get("projects/admin/project/")
+    console.log("response = ", response)
+
+  }
+  useEffect(() => {
+    getData()
+  })
   const data = [
     {
       id: 1,

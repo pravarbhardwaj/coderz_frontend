@@ -8,7 +8,7 @@ function SelectionTab({selectedTab, setSelectedTab, tabs}) {
             className={`rounded-t-md justify-center flex border-b-2 border-custom-blue ${
               selectedTab == tab
                 ? "bg-custom-orange-dark "
-                : "bg-custom-blue"
+                : "bg-sky-100"
             } px-2 py-1 hover:cursor-pointer content-center gap-2`}
             onClick={() => setSelectedTab(tab)}
           >

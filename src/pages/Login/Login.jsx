@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { loginApi } from "../request";
 import { useNavigate } from "react-router-dom";
+import { loginApi } from "../../request/APIManager";
 
 
 const Login = ({setUserRole}) => {
@@ -53,16 +53,7 @@ const Login = ({setUserRole}) => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              className="mr-2"
-              checked={rememberMe}
-              onChange={() => setRememberMe(!rememberMe)}
-            />
-            <label className="text-sm text-gray-700">Remember Me</label>
-          </div>
+          </div> 
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
@@ -70,9 +61,7 @@ const Login = ({setUserRole}) => {
             Login
           </button>
         </form>
-        <p className="text-sm text-center text-gray-600 mt-4">
-          Don't have an account? <a href="#" className="text-blue-500 hover:underline">Sign Up</a>
-        </p>
+       
       </div>
     </div>
   );
