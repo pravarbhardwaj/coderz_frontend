@@ -12,6 +12,7 @@ import {
   ChartLine,
   CircleX,
   ClipboardPlus,
+  Download,
   Edit,
   FastForward,
   FileDown,
@@ -22,10 +23,11 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAPI } from "../../../request/APIManager";
+import { getAPI, postAPI } from "../../../request/APIManager";
 import { Circles } from "react-loader-spinner";
 import Pagination from "../../../components/Pagination";
 import ProfilePictureUploader from "../../../components/Faculty/ProfilePictureUploader";
+import { useDropzone } from "react-dropzone";
 
 function Student() {
   const navigation = useNavigate();
@@ -42,19 +44,168 @@ function Student() {
   const [gender, setGender] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [pageSize, setPageSize] = useState(10);
+  const [files, setFiles] = useState([]);
+  const [uploadTab, setUplodTab] = useState(false)
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [contact, setContact] = useState("")
+  const [altContact, setAltContact] = useState("")
+  const [email, setEmail] = useState("")
+  const [grade, setGrade] = useState("")
+  const [division, setDivision] = useState("")
+  const [admissionNumber, setAdmissionNumber] = useState("")
+  const [modalLoader, setModalLoader] = useState(false);
+  const [edit, setEdit] = useState();
+  
+
+useEffect(() => {
+    if (!edit) {
+      return;
+    }
+    fetchStudentData();
+    fetchAllGrades()
+  }, [edit]);
+
+
+  const fetchAllGrades = async () => {
+      const response = await getAPI(
+        navigation,
+        "/accounts/admin/grade-division-mapping/"
+      );
+
+      const response2 = await getAPI(
+        navigation,
+        "/accounts/admin/grades/"
+      );
+
+      const gs = {};
+      response.forEach((item) => (gs[item.grade] = item));
+      console.log("resp - ", response)
+      console.log("resp22 - ", response2)
+      
+    };
+
+    const uploadBulk = async () => {
+      if (files.length !== 1) {
+        return
+      }
+      const formData = new FormData()
+      formData.append("file", files[0])
+      const response = await postAPI(
+        navigation,
+        "/accounts/admin/students-bulk-upload/",
+        formData
+      );
+      console.log("Upload resp = ", response)
+    }
+  const handleModalClose = () => {
+    setFirstName("")
+    setLastName("")
+    setGender("")
+    setContact("")
+    setAltContact("")
+    setEmail("")
+    setGrade(null)
+    setDivision(null)
+    setIsActive(true)
+    setOpen(false);
+    setEdit(null);
+    
+  };
+
+  const ModalLoader = () => {
+      return (
+        <div className="flex h-full items-center justify-center mt-10">
+          <Circles />
+        </div>
+      );
+    };
+
+
+  const fetchStudentData = async () => {
+      setModalLoader(true);
+      const response = await getAPI(
+        navigation,
+        `accounts/admin/students/${edit}/`
+      );
+      setFirstName(response?.FirstName ?? "");
+      setLastName(response?.LastName ?? "");
+      setIsActive(response?.IsActive ?? "")
+      setGender(response?.Gender ?? "")
+      setEmail(response?.Email ?? "")
+      setDivision(response?.DivisionId ?? "")
+      setGrade(response?.GradeId ?? "")
+      setContact(response?.PhoneNumber ?? "")
+      setAdmissionNumber(response?.AdmissionNo ?? "")
+      setModalLoader(false);
+    };
+  
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      setFiles([...files, ...acceptedFiles]);
+    },
+  });
 
   const handleChange = (value) => {
     setDropdown(value.target.value);
+  };
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const BulkStudentUpload = () => {
+    return (
+      <div className="w-full">
+        <div
+          {...getRootProps()}
+          className="mt-10 p-6 border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg flex-col cursor-pointer"
+        >
+          <div className="justify-center mt-8 flex">
+            {" "}
+            <input {...getInputProps()} ref={fileInputRef} />
+            <p className="text-blue-400 text-lg">
+              Drag And Drop File Here To Upload
+            </p>
+          </div>
+
+          <button
+            className="mt-4 px-4 py-2 border border-blue-400 text-blue-900 flex items-center rounded-md hover:bg-blue-100 transition"
+            onClick={handleButtonClick}
+          >
+            <Upload className="mr-2" size={20} /> ADD FILES
+          </button>
+        </div>
+        <div className="flex justify-center items-center mt-5">
+          <div>
+            <div> Max File Size 15 MB.</div>
+            <div>File type accepted .csv</div>
+          </div>
+          <div className="ml-auto cursor-pointer bg-custom-lime p-2 rounded-md border-2 text-sm font-semibold flex gap-2">
+            Download Format <Download size={18} />
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <div className={`${files.length != 1 ? "cursor-pointer bg-custom-blue" : "bg-gray-500"} p-2 rounded-md border-2 text-sm font-semibold flex gap-2`}
+           onClick={() => uploadBulk()}>
+            <Upload size={18} />
+            Upload
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const handleChangeSecond = (value) => {
     setPageSize(value.target.value);
   };
 
-  const fetchStudentData = async () => {
+  const fetchStudentsData = async () => {
     const response = await getAPI(
       navigation,
-      `/accounts/admin/students/?page=${page}&items_per_page=${page_size}&is_active=${is_active}`
+      `/accounts/admin/students/?page=${page}&items_per_page=${pageSize}&is_active=${isActive}`
     );
     console.log("REsponse = ", response);
     setStudents({ ...response });
@@ -62,7 +213,7 @@ function Student() {
   };
 
   useEffect(() => {
-    fetchStudentData();
+    fetchStudentsData();
   }, [page]);
 
   const handlePayload = (key, value) => {
@@ -91,9 +242,19 @@ function Student() {
 
   return (
     <div>
+      <Modal 
+      open={uploadTab}
+      onClose={() => setUplodTab(false)}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+      className="px-10 content-center">
+        <Box className="bg-white p-10">
+          <BulkStudentUpload />
+        </Box>
+      </Modal>
       <Modal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={open || edit}
+        onClose={() => handleModalClose()}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -102,12 +263,14 @@ function Student() {
             <div className="flex">
               <div
                 className="ml-auto cursor-pointer text-red-400"
-                onClick={() => setOpen(false)}
+                onClick={() => handleModalClose()}
               >
                 <CircleX />
               </div>
             </div>
-            <div className="flex gap-6 mt-3">
+            {modalLoader && <ModalLoader /> }
+
+            {!modalLoader && <div className="flex gap-6 mt-3">
               <ProfilePictureUploader />
               <div>
                 <div className="flex gap-4">
@@ -116,6 +279,7 @@ function Student() {
                     placeholder="First Name"
                     variant="outlined"
                     className="w-full"
+                    value={firstName}
                     required
                     onChange={(value) =>
                       handlePayload("first_name", value.target.value)
@@ -127,6 +291,7 @@ function Student() {
                     placeholder="Last Name"
                     variant="outlined"
                     className="w-full"
+                    value={lastName}
                     required
                     onChange={(value) =>
                       handlePayload("last_name", value.target.value)
@@ -143,7 +308,7 @@ function Student() {
                         label="Gender*"
                         onChange={(value) => {
                           setGender(value.target.value);
-                          handlePayload("gender", value.target.value);
+                         
                         }}
                         className="w-40"
                         required
@@ -160,21 +325,22 @@ function Student() {
                       variant="outlined"
                       className="w-full"
                       required
+                      value={contact}
                       onChange={(value) =>
-                        handlePayload("contact", value.target.value)
+                        setContact(value.target.value)
                       }
                     />
-                    {payloadData["contact"] &&
-                      payloadData["contact"].length != 10 && (
+                    {contact &&
+                      contact.length != 10 && (
                         <div className="text-red-500 text-sm">
                           Mobile number should be of 10 digits!
                         </div>
                       )}
                   </div>
                 </div>
-                <div className="flex gap-4 mt-3">
-                  <div>
-                    <TextField
+                <div className="w-full mt-4"> 
+
+                <TextField
                       id="outlined-basic"
                       label="Email"
                       variant="outlined"
@@ -182,26 +348,32 @@ function Student() {
                       required
                       placeholder="Email"
                       type="email"
+                      value={email}
                       onChange={(value) =>
-                        handlePayload("email", value.target.value)
+                        setEmail(value.target.value)
                       }
                     />
+                      <div>
+                   
 
-                    {payloadData["email"] &&
-                      !validEmail(payloadData["email"]) && (
-                        <div className="text-red-500 text-sm">
-                          Please input valid Email!
-                        </div>
-                      )}
-                  </div>
+                   {email &&
+                     !validEmail(email) && (
+                       <div className="text-red-500 text-sm">
+                         Please input valid Email!
+                       </div>
+                     )}
+                 </div>
+                </div>
+                <div className="flex gap-4 mt-3">
+                
                   <FormControl>
-                    <InputLabel>Gender*</InputLabel>
+                    <InputLabel>Grade*</InputLabel>
                     <Select
-                      value={gender}
-                      label="Gender*"
+                      value={grade}
+                      label="Grade*"
                       onChange={(value) => {
-                        setGender(value.target.value);
-                        handlePayload("gender", value.target.value);
+                        setGrade(value.target.value);
+                     
                       }}
                       className="w-40"
                       required
@@ -211,13 +383,13 @@ function Student() {
                     </Select>
                   </FormControl>
                   <FormControl>
-                    <InputLabel>Gender*</InputLabel>
+                    <InputLabel>Division*</InputLabel>
                     <Select
-                      value={gender}
-                      label="Gender*"
+                      value={division}
+                      label="Division*"
                       onChange={(value) => {
-                        setGender(value.target.value);
-                        handlePayload("gender", value.target.value);
+                        setDivision(value.target.value);
+                        
                       }}
                       className="w-40"
                       required
@@ -234,8 +406,9 @@ function Student() {
                     className="w-full"
                     required
                     placeholder="Admission Number"
+                    value={admissionNumber}
                     onChange={(value) =>
-                      handlePayload("email", value.target.value)
+                      setAdmissionNumber(value.target.value)
                     }
                   />
                 </div>
@@ -257,7 +430,7 @@ function Student() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>}
           </div>
         </Box>
       </Modal>
@@ -270,7 +443,7 @@ function Student() {
             <Plus size={14} /> Add Student
           </div>
         </div>
-        <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
+        <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex" onClick={() => setUplodTab(true)}>
           <div className="font-bold text-xs flex gap-2 justify-center items-center">
             <Upload size={14} /> Bulk Upload
           </div>
@@ -320,9 +493,7 @@ function Student() {
         <table className="min-w-full border-collapse border border-gray-200 ">
           <thead className="bg-orange-100">
             <tr>
-              {/* <th className="border border-gray-300 p-2 text-left">Photo</th> */}
               <th className="border border-gray-300 p-2 text-left">Name</th>
-              <th className="border border-gray-300 p-2 text-left">ID</th>
               <th className="border border-gray-300 p-2 text-left">Grade</th>
               <th className="border border-gray-300 p-2 text-left">Division</th>
               <th className="border border-gray-300 p-2 text-left">Gender</th>
@@ -334,7 +505,7 @@ function Student() {
               <tr key={index} className="odd:bg-gray-50">
                 {/* <td className="border border-gray-300 p-2">{item.photo}</td> */}
                 <td className="border border-gray-300 p-2">{item.full_name}</td>
-                <td className="border border-gray-300 p-2">{item.UserId}</td>
+                {/* <td className="border border-gray-300 p-2">{item.UserId}</td> */}
                 <td className="border border-gray-300 p-2">{item.GradeId}</td>
                 <td className="border border-gray-300 p-2">
                   {item.DivisionId}
@@ -342,7 +513,9 @@ function Student() {
                 <td className="border border-gray-300 p-2">{item.Gender}</td>
                 <td className="border border-gray-300 p-2 space-x-2">
                   <Tooltip title="Edit">
-                    <button className="p-2 bg-custom-blue border-b-2 rounded-md">
+                    <button className="p-2 bg-custom-blue border-b-2 rounded-md" onClick={() => {
+                        setEdit(item.UserId);
+                      }}>
                       <Edit size={16} className="mr-1" />
                     </button>
                   </Tooltip>

@@ -126,7 +126,7 @@ function App() {
             
             )}
 
-            {/* {role == "Admin" && ( */}
+            {role == "Admin" && (
               <>
                 <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
                 <SidebarItem icon={<Book size={20} />} text="Schedule" />
@@ -160,7 +160,7 @@ function App() {
                   </div>
                 </div>
               </>
-            {/* )} */}
+             )} 
           </Sidebar>
         </div>
         <div className="w-full py-5 px-10 overflow-y-auto h-full">

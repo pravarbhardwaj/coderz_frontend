@@ -20,17 +20,16 @@ function Divisions() {
     const navigation = useNavigate();
     
     
-    const fetchAllGrades = async () => {
-        const response = await getAPI(navigation, "/accounts/admin/grades/")
-        console.log("response == ", response)
+    const fetchAllDivisions = async () => {
 
-        const response2 = await getAPI("/accounts/admin/divisions/")
-        console.log("response 2 == ", response2)
+
+        // const response2 = await getAPI(navigation, "/accounts/admin/divisions/")
+        // console.log("response 2 == ", response2)
     }
 
     useEffect(() => {
-        fetchAllGrades()
-    })
+        fetchAllDivisions()
+    }, [])
     const handleInputChange = (key, value) => {
         console.log("EVENT = ", key, value)
     }

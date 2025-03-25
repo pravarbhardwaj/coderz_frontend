@@ -1,27 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CircleX, Cross, Delete, Plus, Trash, Users } from "lucide-react";
 import { Box, Modal, TextField, Tooltip, Typography } from "@mui/material";
 import Migrate from "./Migrate";
+import { getAPI, putAPI } from "../../../request/APIManager";
+import { useNavigate } from "react-router-dom";
+import { Circles } from "react-loader-spinner";
 
 const Mappings = ({migrate, setMigrate}) => {
+  const navigation = useNavigate()
   const [open, setOpen] = useState(false);
-
-  const [divisions, setDivisions] = useState([
-   "A",
-   "B",
-    "C",
-    "D",
-    "E",
-  ]);
+  const [grades, setGrades] = useState([])
+  const [addDivisionData, setAddDivision] = useState()
+  const [modalLoader, setModalLoader] = useState(false)
+  const [divisions, setDivisions] = useState([]);
 
 
-  const handleSubmit = () => {
+  const fetchData = async() => {
+    const response = await getAPI(navigation, "accounts/admin/grade-division-mapping/")
+    console.log("Mapping Response = ", response)
+    setGrades([...response])
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleSubmit = async () => {
+    setModalLoader(true)
     console.log("divisions")
     if (divisions.includes("")) {
       console.log("here?")
       alert("Please fill all divisions input")
       return
     }
+    const response = await putAPI(navigation, `accounts/admin/single-grade-division/${addDivisionData["class"]}/` , {divisions: divisions})
+    await fetchData()
+    setAddDivision(null)
+    setOpen(false)
+    setModalLoader(false)
   }
 
    const deleteDivision = (index) => {
@@ -39,37 +55,25 @@ const Mappings = ({migrate, setMigrate}) => {
     setDivisions([...divisions])
   }
 
-  // const handleDelete(index)
-
-  const grades = [
-    { grade: "", division: "A, F, M, T, Z" }, // First row with an empty input box
-    { grade: "2nd", division: "A, Z" },
-    { grade: "3rd", division: "A, Z" },
-    { grade: "4th", division: "A, Z" },
-    { grade: "5th", division: "A, Z" },
-    { grade: "6th", division: "A, Z" },
-    { grade: "7th", division: "A, Z" },
-  ];
-  
-  if (migrate)
-  {
-    return (
-      <Migrate setMigrate={setMigrate}/>
-     )
+  const fetchSingleGrade = async () => {
+    setModalLoader(true)
+    const response = await getAPI(navigation, `accounts/admin/single-grade-division/${addDivisionData["class"]}/`)
+    console.log("why?")
+    setDivisions([...response.divisions])
+    setModalLoader(false)
   }
-  
-  return (
-    <div className="mt-5">
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box className="w-full justify-center items-center flex h-full">
-          <div className="bg-white px-10 py-5">
-          <div className="flex"><div className="ml-auto cursor-pointer text-red-400" onClick={() => setOpen(false)}><CircleX /></div></div>
 
+  const ModalLoader = () => {
+      return (
+        <div className="flex h-full items-center justify-center mt-10">
+          <Circles />
+        </div>
+      );
+    };
+
+    const ModalContent = () => {
+      return (
+        <div>
             <div className="text-center px-60">
               <div className="font-semibold text-2xl">Add Division</div>
               <div className="font-semibold">1st</div>
@@ -115,6 +119,44 @@ const Mappings = ({migrate, setMigrate}) => {
                 </div>
               </div>
             </div>
+            </div>
+      )
+    }
+
+  useEffect(() => {
+    if (!addDivisionData) {
+      return
+    }
+
+    fetchSingleGrade()
+    
+  }, [addDivisionData])
+  
+  if (migrate)
+  {
+    return (
+      <Migrate setMigrate={setMigrate}/>
+     )
+  }
+  
+  return (
+    <div className="mt-5">
+      <Modal
+        open={open}
+        onClose={() => {
+          setAddDivision(null)
+          setOpen(false)
+        }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box className="w-full justify-center items-center flex h-full">
+          <div className="bg-white px-10 py-5">
+          <div className="flex"><div className="ml-auto cursor-pointer text-red-400" onClick={() => setOpen(false)}>
+            <CircleX /></div></div>
+
+            
+            {modalLoader ? <ModalLoader /> : <ModalContent />}
           </div>
         </Box>
       </Modal>
@@ -132,17 +174,22 @@ const Mappings = ({migrate, setMigrate}) => {
               <td className="border border-gray-300 p-2">
                 <input
                   type="text"
+                  disabled={true}
                   defaultValue={item.grade}
                   placeholder="Enter grade"
                   className="w-full p-1 border border-gray-300 rounded"
                 />
               </td>
-              <td className="border border-gray-300 p-2">{item.division}</td>
+              <td className="border border-gray-300 p-2">{item.divisions}</td>
               <td className="border border-gray-300 p-2 space-x-2">
                 <Tooltip title={"Add Division"}>
                   <button
                     className="p-2 bg-teal-200 rounded hover:bg-teal-300"
-                    onClick={() => setOpen(true)}
+                    onClick={() => {
+                      setAddDivision(item)
+                      setOpen(true)
+                      }
+                    }
                   >
                     <Plus size={16} className="mr-1" />
                   </button>

@@ -1,63 +1,135 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import axiosConfig from '../../request/request';
-import { getAPI } from '../../request/APIManager';
-import { useNavigate } from 'react-router-dom';
+import axiosConfig from "../../request/request";
+import { getAPI } from "../../request/APIManager";
+import { useNavigate } from "react-router-dom";
 
-const grades = [
-    "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th",
-    "1 Coding", "2 Coding", "3 Coding", "4 Coding", "5 Coding", "6 Coding",
-    "7 Coding", "8 Coding", "9 Coding", "10 Coding", "11 Coding", "12 Coding",
-    "Gr 01_Chinm", "Gr 02_Chinm", "Gr 03_Chinm", "Gr 04_Chinm", "Gr 05_Chinm",
-    "Gr 06_Chinm", "Gr 07_Chinm", "Gr 08_Chinm", "Gr 09_Chinm", "Gr 10_Chinm",
-    "Gr 11_Chinm", "Gr 12_Chinm", "Gr 13_Chinm"
-  ];
+const Grades = ({ setGdMapping }) => {
+  const navigation = useNavigate();
+  const [selectedGrades, setSelectedGrades] = useState({});
+  const [selected, setSelected] = useState({});
 
- 
+  useEffect(() => {
+    setGdMapping(selected);
+  }, [selected]);
+  const [grades, setGrades] = useState({});
+  const [data, setData] = useState([]);
 
-function Grades() {
-    const navigation = useNavigate();
-    
-    
-    const fetchAllGrades = async () => {
-        const response = await getAPI(navigation, "/accounts/admin/grades/")
-        console.log("response == ", response)
+  const fetchAllGrades = async () => {
+    const response = await getAPI(
+      navigation,
+      "/accounts/admin/grade-division-mapping/"
+    );
+    const gs = {};
+    response.forEach((item) => (gs[item.grade] = item));
+    setData([...response]);
+    setGrades(gs);
+  };
 
-        const response2 = await getAPI("/accounts/admin/divisions/")
-        console.log("response 2 == ", response2)
+  useEffect(() => {
+    fetchAllGrades();
+  }, []);
+
+  const handleInputChange = (key, value) => {
+    console.log("EVENT = ", key, value);
+    const object = data.find((grade) => grade.id === key);
+
+    if (value) {
+      console.log("objectss = ", object);
+      setSelected((prev) => ({
+        ...prev,
+        [object["grade"]]: [],
+      }));
+      setSelectedGrades((prev) => ({
+        ...prev,
+        [object["grade"]]: object["divisions"]
+          ? object["divisions"].split(",")
+          : [],
+      }));
+    } else {
+      setSelectedGrades((prev) => {
+        const updatedData = { ...prev };
+        delete updatedData[object["grade"]];
+        return updatedData;
+      });
+      setSelected((prev) => {
+        const updatedData = { ...prev };
+        delete updatedData[object["grade"]];
+        return updatedData;
+      });
     }
+  };
 
-    useEffect(() => {
-        fetchAllGrades()
-    })
-    const handleInputChange = (key, value) => {
-        console.log("EVENT = ", key, value)
+  const handleDivisionChange = (grade, division, action) => {
+    const arr = selected[grade];
+    if (action) {
+      arr.push(division);
+    } else {
+      arr.pop(arr.indexOf(division));
     }
+    setSelected((prev) => ({
+      ...prev,
+      [grade]: arr,
+    }));
+  };
+  return (
+    <div className="border p-4 rounded-lg shadow-md w-full max-w-2xl bg-white mt-5">
+      <div className="flex items-center gap-2 cursor-pointer p-2 bg-orange-200 rounded-md">
+        <ChevronDown size={18} />
+        <span className="font-semibold text-gray-700">Grades</span>
+      </div>
 
-    return (
-        <div className="border p-4 rounded-lg shadow-md w-full max-w-2xl bg-white mt-5">
-          <div
-            className="flex items-center gap-2 cursor-pointer p-2 bg-orange-200 rounded-md"
-
-          >
-            <ChevronDown size={18} /> 
-            <span className="font-semibold text-gray-700">Grades</span>
-          </div>
-          
-            <div className="p-4 border-l mt-2">
-              <div className="grid grid-cols-4 gap-2">
-                {grades.map((grade, index) => (
-                  <label key={index} className="flex items-center gap-2 text-gray-600">
-                    <input type="checkbox" className="accent-gray-500" onChange={(event) => handleInputChange(grade, event.target.checked)}/>
-                    {grade}
-                  </label>
-                ))}
-              </div>
-            </div>
-          
+      <div className="p-4 border-l mt-2">
+        <div className="grid grid-cols-4 gap-2">
+          {Object.keys(grades).map((grade, index) => (
+            <label
+              key={grades[grade]["id"]}
+              className="flex items-center gap-2 text-gray-600"
+            >
+              <input
+                type="checkbox"
+                className="accent-gray-500"
+                onChange={(event) =>
+                  handleInputChange(grades[grade]["id"], event.target.checked)
+                }
+              />
+              {grades[grade]["grade"]}
+            </label>
+          ))}
         </div>
-      );
-}
+      </div>
 
-export default Grades
+      <div className="flex items-center gap-2 cursor-pointer p-2 bg-orange-200 rounded-md">
+        <ChevronDown size={18} />
+        <span className="font-semibold text-gray-700">Divisions</span>
+      </div>
+
+      {Object.keys(selectedGrades).map((grade, index) => (
+        <div className="mt-2 border-2 p-2">
+          {grade}
+
+          <div className="grid grid-cols-4 gap-2">
+            {selectedGrades[grade].map((division, index) => (
+              <label
+                key={`${grade}-${division}`}
+                className="flex items-center gap-2 text-gray-600"
+              >
+                <input
+                  type="checkbox"
+                  className="accent-gray-500"
+                  onChange={(event) =>
+                    handleDivisionChange(grade, division, event.target.checked)
+                  }
+                />
+                {division}
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default React.memo(Grades);
