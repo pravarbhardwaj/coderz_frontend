@@ -8,13 +8,13 @@ function UploadProject() {
   const [division, setDivision] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = (null);
+  // const [preview, setPreview] = ();
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile && selectedFile.type.startsWith("image/")) {
       setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile)); // Generate preview
+      // setPreview(URL.createObjectURL(selectedFile)); // Generate preview
     } else {
       alert("Please select a valid image file.");
     }
@@ -67,13 +67,13 @@ function UploadProject() {
         </Select>
       </div>
       <div className="flex flex-col items-center space-y-4 p-4 border rounded-lg shadow-md">
-      {preview && (
+      {/* {preview && (
         <img
           src={preview}
           alt="Thumbnail Preview"
           className="w-32 h-32 object-cover rounded-md"
         />
-      )}
+      )} */}
       <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
         Select Thumbnail
         <input
