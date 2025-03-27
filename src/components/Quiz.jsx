@@ -1,31 +1,8 @@
 import React, { useState } from "react";
 
-const quizData = [
-  {
-    id: 1,
-    question: "What is 2+7?",
-    options: {
-      1: "2",
-      2: "9",
-      3: "6",
-      4: "20",
 
-    },
-    multiselect: false,
-  },
-  {
-    id: 2,
-    question: "What is 2+4?",
-    options: {
-      1: "2",
-      2: "4",
-      3: "6",
-    },
-    multiselect: false,
-  },
-];
 
-const Quiz = () => {
+const Quiz = ({quizData}) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   
