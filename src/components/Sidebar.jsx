@@ -40,7 +40,7 @@ const activeMapper = {
   Curriculum: "/curriculum",
   "My Projects": "/myprojects",
   "Project Review": "/projectreview",
-  "Upload Project": "/uploadproject",
+  "My Class": "/myclass",
 
 
 };

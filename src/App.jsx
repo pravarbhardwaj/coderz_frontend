@@ -18,6 +18,7 @@ import {
   LogOut,
   ListCheck,
   Upload,
+  Shapes,
 } from "lucide-react";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import Home from "./pages/Student/Home";
@@ -40,7 +41,7 @@ import MyProjects from "./pages/Student/MyProjects/MyProjects";
 import LoginSSO from "./pages/Login/LoginSSO";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import ProjectReview from "./pages/Teacher/ProjectReview/ProjectReview";
-import UploadProject from "./pages/Teacher/UploadProject";
+import Project from "./pages/Teacher/Project";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -108,8 +109,8 @@ function App() {
                 />
 
                 <SidebarItem
-                  icon={<Upload size={20} />}
-                  text="Upload Project"
+                  icon={<Shapes size={20} />}
+                  text="My Class"
                 />
 
                 <hr className="my-3" />
@@ -302,11 +303,11 @@ function App() {
             element={
               <div>
                 <PrivateWrapper />
-                <SideBar element={<UploadProject />} />
+                <SideBar element={<Project />} />
                 <PrivateWrapper />
               </div>
             }
-            path="/uploadproject"
+            path="/myclass"
           />
           </>
         )}

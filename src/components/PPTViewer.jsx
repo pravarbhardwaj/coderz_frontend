@@ -11,10 +11,10 @@ const slides = [
 ];
 
 
-const PowerPointEmbed = () => {
+const PowerPointEmbed = ({data}) => {
   return (
     <iframe
-      src="https://view.officeapps.live.com/op/embed.aspx?src=https://www.dickinson.edu/download/downloads/id/1076/sample_powerpoint_slides.pptx"
+      src={data.ppt_file}
       width="100%"
       height="600px"
     />
@@ -22,7 +22,8 @@ const PowerPointEmbed = () => {
 };
 
 
-const PPTViewer = () => {
+const PPTViewer = ({data}) => {
+  console.log("waaa - ", data)
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(1);
@@ -68,7 +69,7 @@ const PPTViewer = () => {
             <video ref={videoRef} src={slides[currentSlide].src} controls className="w-full mt-2 rounded-md"></video>
           )} */}
 
-            <PowerPointEmbed />
+            <PowerPointEmbed data={data}/>
           <audio ref={audioRef} src={slides[currentSlide].audio} autoPlay hidden></audio>
           {isDrawing && (
             <ReactSketchCanvas
