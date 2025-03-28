@@ -35,14 +35,14 @@ export const getAPI = async (navigation, url) => {
   }
 };
 
-export const postAPI = async (navigation, url, payload) => {
+export const postAPI = async (navigation, url, payload, upload=false) => {
   try {
     const headers = {
       "Cache-Control": "no-cache",
       Accept: "application/json",
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": true,
     };
+    console.log("upload ?? - ", upload)
+    headers["Content-Type"] = upload ? "multipart/form-data" : "application/json"
 
     const response = await api.post(url, payload, { headers: headers });
     if (response.status == 400) {
@@ -69,7 +69,6 @@ export const putAPI = async (navigation, url, payload) => {
       "Cache-Control": "no-cache",
       Accept: "application/json",
       "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": true,
     };
 
     const response = await api.put(url, payload, { headers: headers });

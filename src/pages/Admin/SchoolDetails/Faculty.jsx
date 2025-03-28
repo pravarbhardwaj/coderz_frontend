@@ -13,7 +13,7 @@ import {
 import axiosConfig from "../../../request/request";
 import Grades from "../../../components/Faculty/Grades";
 import ProfilePictureUploader from "../../../components/Faculty/ProfilePictureUploader";
-import { getAPI, postAPI } from "../../../request/APIManager";
+import { getAPI, postAPI, putAPI } from "../../../request/APIManager";
 import { useNavigate, useNavigation } from "react-router-dom";
 import Pagination from "../../../components/Pagination";
 import { Circles, LineWave } from "react-loader-spinner";
@@ -67,6 +67,46 @@ function Faculty() {
     }
   };
 
+  const handleSubmit = async () => {
+    console.log("Hiiiiiiiiiiiiii")
+  
+  let response = false
+  console.log("edit = ", edit)
+  if (edit) {
+    const payload = {
+      "email": email,
+      "FirstName": firstName,
+      "LastName": lastName,
+      "Gender": gender,
+      "contact":contact,
+      "grade_division_mapping_update": 
+          gdMapping
+      
+  }
+    response = await putAPI(navigation, `accounts/admin/teachers/${edit}/` , payload)
+
+  }
+  else {
+    const payload = {
+      "email": email,
+      "first_name": firstName,
+      "last_name": lastName,
+      "gender": gender,
+      "contact":contact,
+      "grade_division_mapping": 
+          gdMapping
+      
+  }
+   response = await postAPI(navigation, "accounts/admin/teachers/add/" , payload)
+
+  }
+
+  if (response) {
+    alert(edit ? "Faculty Updated" : "Faculty Created!")
+    handleModalClose()
+  }
+  }
+
   const validEmail = (email) => {
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return pattern.test(email);
@@ -74,14 +114,7 @@ function Faculty() {
   
   useEffect(() => {
     let allowSubmit = true;
-
-
-    const editList = ["FirstName", "LastName", "Gender", "email"];
-
-    const newList = ["first_name", "last_name", "gender", "contact", "email"];
-
-    const listToUse = edit ? editList : newList;
-    
+      console.log("last name? ", lastName)
       if (!firstName || !lastName || !gender || !contact || !email) {
         allowSubmit = false;
       } else if ( contact.length != 10)
@@ -93,26 +126,9 @@ function Faculty() {
     
 
     setSubmit(allowSubmit);
-  }, [firstName, lastName, gender, email]);
+  }, [firstName, lastName, gender, email, contact]);
 
-  const addFaculty = async () => {
-    const payload = {
-      email: email,
-      first_name: firstName,
-      last_name: lastName,
-      gender: gender,
-      contact: contact,
-      grade_division_mapping: gdMapping,
-      password: "test"
-    }
-    const response = await postAPI(navigation, "accounts/admin/teachers/add/", payload);
-    if (!response) {
-      return
-    }
-    alert("Faculty Created")
-    handleModalClose()
-    console.log("REsponse = ", response)
-  };
+
 
   const fetchTeacherData = async () => {
     setModalLoader(true);
@@ -127,6 +143,8 @@ function Faculty() {
     setEmail(response?.email ?? "")
     setContact(response?.contact ?? "")
     setModalLoader(false);
+    console.log("yaa =- ", response?.grade_division_mapping)
+    setGdMapping({...response?.grade_division_mapping});
   };
 
   useEffect(() => {
@@ -168,7 +186,7 @@ function Faculty() {
   const modalContent = 
     (
       <div className="flex gap-6 mt-3">
-        <ProfilePictureUploader />
+        {/* <ProfilePictureUploader /> */}
         <div>
           <div className="flex gap-4">
             <TextField
@@ -285,9 +303,9 @@ function Faculty() {
                     ? "hover:cursor-pointer bg-custom-blue"
                     : "bg-gray-500"
                 }`}
-              onClick={() => null}
+              onClick={() => submit ? handleSubmit() : null}
             >
-              <div className="font-bold text-xs " onClick={() => {addFaculty()}}>Submit</div>
+              <div className="font-bold text-xs ">Submit</div>
             </div>
           </div>
         </div>

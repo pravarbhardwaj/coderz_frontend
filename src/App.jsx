@@ -62,36 +62,36 @@ function App() {
       <div className="flex">
         <div className="sticky top-0 h-full">
           <Sidebar>
-            {role == "Student" && (
+            {role == "Learner" && (
               <>
-                <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
-                <SidebarItem icon={<Book size={20} />} text="Digital Book" />
-                <SidebarItem
+                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
+                {/* <SidebarItem icon={<Book size={20} />} text="Digital Book" /> */}
+                {/* <SidebarItem
                   icon={<School size={20} />}
                   text="Classroom Project"
-                />
-                <SidebarItem
+                /> */}
+                {/* <SidebarItem
                   icon={<StickyNote size={20} />}
                   text="Personalised Project"
-                />
-                <SidebarItem icon={<Layers size={20} />} text="My Projects" />
-                <SidebarItem icon={<Brain size={20} />} text="Reflective" />
-                <SidebarItem
+                /> */}
+                <SidebarItem icon={<Layers size={20} />} text="Projects" />
+                {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
+                {/* <SidebarItem
                   icon={<NotebookPen size={20} />}
                   text="Assessment"
-                />
-                <SidebarItem icon={<Trophy size={20} />} text="Competition" />
-                <SidebarItem icon={<ChartLine size={20} />} text="Report" />
-                <SidebarItem
+                /> */}
+                {/* <SidebarItem icon={<Trophy size={20} />} text="Competition" /> */}
+                {/* <SidebarItem icon={<ChartLine size={20} />} text="Report" /> */}
+                {/* <SidebarItem
                   icon={<MonitorPlay size={20} />}
                   text="Platform Videos"
-                />
+                /> */}
 
                 <hr className="my-3" />
-                <SidebarItem
+                {/* <SidebarItem
                   icon={<Settings size={20} />}
                   text="Notifications"
-                />
+                /> */}
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -102,22 +102,26 @@ function App() {
 
             {role == "Teacher" && (
               <>
-                <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
+               <SidebarItem
+                  icon={<Shapes size={20} />}
+                  text="Projects"
+                />
+                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
                 <SidebarItem
                   icon={<ListCheck size={20} />}
                   text="Project Review"
                 />
 
-                <SidebarItem
+                {/* <SidebarItem
                   icon={<Shapes size={20} />}
                   text="My Class"
-                />
+                /> */}
 
                 <hr className="my-3" />
-                <SidebarItem
+                {/* <SidebarItem
                   icon={<Settings size={20} />}
                   text="Notifications"
-                />
+                /> */}
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -129,32 +133,34 @@ function App() {
 
             {role == "Admin" && (
               <>
-                <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" />
-                <SidebarItem icon={<Book size={20} />} text="Schedule" />
+                <SidebarItem icon={<Layers size={20} />} text="Projects" />
+
+                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
+                {/* <SidebarItem icon={<Book size={20} />} text="Schedule" /> */}
                 <SidebarItem
                   icon={<School size={20} />}
                   text="School Details"
                 />
-                <SidebarItem
+                {/* <SidebarItem
                   icon={<StickyNote size={20} />}
                   text="Curriculum"
-                />
-                <SidebarItem icon={<Brain size={20} />} text="Reflective" />
-                <SidebarItem
+                /> */}
+                {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
+                {/* <SidebarItem
                   icon={<NotebookPen size={20} />}
                   text="Assessment"
-                />
-                <SidebarItem icon={<Trophy size={20} />} text="Competition" />
-                <SidebarItem
+                /> */}
+                {/* <SidebarItem icon={<Trophy size={20} />} text="Competition" /> */}
+                {/* <SidebarItem
                   icon={<MonitorPlay size={20} />}
                   text="Platform Videos"
-                />
+                /> */}
 
                 <hr className="my-3" />
-                <SidebarItem
+                {/* <SidebarItem
                   icon={<Settings size={20} />}
                   text="Notifications"
-                />
+                /> */}
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -184,14 +190,14 @@ function App() {
         <Route element={<Login setUserRole={setUserRole} />} path="/login" />
         <Route element={<LoginSSO />} path="/loginsso" />
 
-        {!userRole || !["Student", "Teacher", "Admin"].includes(userRole) ? (
+        {!userRole || !["Learner", "Teacher", "Admin"].includes(userRole) ? (
           <Route element={<Login setUserRole={setUserRole} />} path="*" />
         ) : (
           <Route element={<h1>Page Not Found!</h1>} path="*" />
         )}
-        {role == "Student" && (
+        {role == "Learner" && (
           <>
-            <Route
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -200,32 +206,32 @@ function App() {
                 </div>
               }
               path="/"
-            />
+            /> */}
             <Route
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<ClassroomProject />} />
+                  <SideBar element={<Project />} />
                   <PrivateWrapper />
                 </div>
               }
-              path="/mycourse"
+              path="/"
             />
-            <Route
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<MyProjects />} />
+                  <SideBar element={<Project myProject={true} />} />
                   <PrivateWrapper />
                 </div>
               }
               path="/myprojects"
-            />
+            /> */}
           </>
         )}
-        {/* {role == "Admin" && ( */}
+        {role == "Admin" && (
           <>
-            <Route
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -234,7 +240,7 @@ function App() {
                 </div>
               }
               path="/"
-            />
+            /> */}
             <Route
               element={
                 <div>
@@ -243,9 +249,9 @@ function App() {
                   <PrivateWrapper />
                 </div>
               }
-              path="/mycourse"
+              path="/"
             />
-            <Route
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -254,8 +260,8 @@ function App() {
                 </div>
               }
               path="/schedule"
-            />
-            <Route
+            /> */}
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -264,7 +270,7 @@ function App() {
                 </div>
               }
               path="/curriculum"
-            />
+            /> */}
             <Route
               element={
                 <div>
@@ -276,11 +282,11 @@ function App() {
               path="/schooldetails"
             />
           </>
-        {/* )} */}
+        )}
 
         {role == "Teacher" && (
           <>
-            <Route
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -289,8 +295,8 @@ function App() {
                 </div>
               }
               path="/"
-            />
-            <Route
+            /> */}
+            {/* <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -299,7 +305,8 @@ function App() {
                 </div>
               }
               path="/projectreview"
-            /><Route
+            /> */}
+            <Route
             element={
               <div>
                 <PrivateWrapper />
@@ -307,7 +314,7 @@ function App() {
                 <PrivateWrapper />
               </div>
             }
-            path="/myclass"
+            path="/"
           />
           </>
         )}

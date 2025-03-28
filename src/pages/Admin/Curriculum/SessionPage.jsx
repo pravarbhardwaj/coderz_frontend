@@ -6,6 +6,7 @@ import { MoveLeft } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { getAPI } from '../../../request/APIManager'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import Asset from '../../../components/Asset'
 
 const PPT = ({data}) => {
     return (
@@ -30,16 +31,27 @@ const Overview = ({data}) => {
 
 function SessionPage({setSession, renderSession, data, navigation}) {
     const [selectedTab, setSelectedTab] = useState("Overview")
-    const tabs = ["Overview", "Session PPT", "Assets", "Reflectives"]
+    const tabs = ["Overview", "Session PPT"]
+
+    if (data.quizzes.length > 0) {
+      tabs.push("Reflectives")
+    }
+
+    if (data.assets.length > 0) {
+      tabs.push("Assets")
+    }
     const [dropdown, setDropdown] = useState("");
     const [sessionData, setSessionData] = useState([])
     const [selectedSession , setSelectedSession] = useState({})
     
     const getSessionData = async () => {
       const response = await getAPI(navigation, "projects/project-sessions/")
-      setSessionData([...response])
-      setDropdown(response[0].id)
-      setSelectedSession(response[0])
+      if (response) {
+        setSessionData([...response])
+        setDropdown(response[0].id)
+        setSelectedSession(response[0])
+      }
+      
   }
   
     useEffect((
@@ -56,7 +68,16 @@ function SessionPage({setSession, renderSession, data, navigation}) {
     };
   
     if (sessionData.length == 0) {
-      return (<p>No Session Data Found!</p>)
+      return (
+      <div><div className="flex gap-5 items-center">
+         
+      <div onClick={() => setSession(false)} className="cursor-pointer">
+        <MoveLeft /> 
+      </div>
+      <div className="font-bold text-2xl">{data.title}</div>
+    </div>
+    <p>No Session Data Found!</p>
+    </div>)
     }
   return (
     <div>
@@ -90,6 +111,8 @@ function SessionPage({setSession, renderSession, data, navigation}) {
       {selectedTab === "Session PPT" && <PPT data={selectedSession}/>}
       {selectedTab === "Overview" && <Overview data={selectedSession} />}
       {selectedTab === "Reflectives" && <Quiz quizData={data.quizzes}/>}
+      {selectedTab === "Assets" && <Asset assets={data.assets} />}
+
 
 
     </div>

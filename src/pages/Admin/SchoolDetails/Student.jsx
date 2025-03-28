@@ -56,6 +56,17 @@ function Student() {
   const [admissionNumber, setAdmissionNumber] = useState("")
   const [modalLoader, setModalLoader] = useState(false);
   const [edit, setEdit] = useState();
+  const [gradeMapping, setGradeMapping] = useState({})
+  const [divisionList, setDivisionList] = useState([])
+
+  useEffect(() => {
+    if (!grade){
+      return
+    }
+    console.log("yaaaaaaaaaaa - ", gradeMapping[grade]["divisions"])
+    const list = gradeMapping[grade]["divisions"].split(",");
+    setDivisionList([...list])
+  }, [grade])
   
 
 useEffect(() => {
@@ -63,9 +74,31 @@ useEffect(() => {
       return;
     }
     fetchStudentData();
-    fetchAllGrades()
+
   }, [edit]);
 
+
+    useEffect(() => {
+      let allowSubmit = true;
+  
+
+      
+        if (!firstName || !lastName || !gender || !contact || !email || !admissionNumber || !division || !grade) {
+          allowSubmit = false;
+        } else if ( contact.length != 10)
+         {
+          allowSubmit = false;
+        } else if (!validEmail(email)) {
+          allowSubmit = false;
+        }
+      
+  
+      setSubmit(allowSubmit);
+    }, [firstName, lastName, gender, email, admissionNumber, division, grade]);
+
+useEffect(() => {
+  fetchAllGrades()
+}, [])
 
   const fetchAllGrades = async () => {
       const response = await getAPI(
@@ -73,15 +106,12 @@ useEffect(() => {
         "/accounts/admin/grade-division-mapping/"
       );
 
-      const response2 = await getAPI(
-        navigation,
-        "/accounts/admin/grades/"
-      );
-
+    
       const gs = {};
       response.forEach((item) => (gs[item.grade] = item));
       console.log("resp - ", response)
-      console.log("resp22 - ", response2)
+      setGradeMapping({...gs})
+
       
     };
 
@@ -105,6 +135,7 @@ useEffect(() => {
     setContact("")
     setAltContact("")
     setEmail("")
+    setAdmissionNumber("")
     setGrade(null)
     setDivision(null)
     setIsActive(true)
@@ -271,7 +302,7 @@ useEffect(() => {
             {modalLoader && <ModalLoader /> }
 
             {!modalLoader && <div className="flex gap-6 mt-3">
-              <ProfilePictureUploader />
+              {/* <ProfilePictureUploader /> */}
               <div>
                 <div className="flex gap-4">
                   <TextField
@@ -282,7 +313,7 @@ useEffect(() => {
                     value={firstName}
                     required
                     onChange={(value) =>
-                      handlePayload("first_name", value.target.value)
+                      setFirstName(value.target.value)
                     }
                   />
                   <TextField
@@ -294,7 +325,7 @@ useEffect(() => {
                     value={lastName}
                     required
                     onChange={(value) =>
-                      handlePayload("last_name", value.target.value)
+                      setLastName(value.target.value)
                     }
                   />
                 </div>
@@ -313,6 +344,7 @@ useEffect(() => {
                         className="w-40"
                         required
                       >
+            
                         <MenuItem value={"male"}>Male</MenuItem>
                         <MenuItem value={"female"}>Female</MenuItem>
                       </Select>
@@ -378,13 +410,19 @@ useEffect(() => {
                       className="w-40"
                       required
                     >
-                      <MenuItem value={"male"}>Male</MenuItem>
-                      <MenuItem value={"female"}>Female</MenuItem>
+                      {
+                        Object.keys(gradeMapping).map((item) => 
+                          <MenuItem value={item}>{item}</MenuItem>
+
+                        )
+                      }
+                     
                     </Select>
                   </FormControl>
                   <FormControl>
                     <InputLabel>Division*</InputLabel>
                     <Select
+                    disabled={grade?false:true}
                       value={division}
                       label="Division*"
                       onChange={(value) => {
@@ -394,8 +432,8 @@ useEffect(() => {
                       className="w-40"
                       required
                     >
-                      <MenuItem value={"male"}>Male</MenuItem>
-                      <MenuItem value={"female"}>Female</MenuItem>
+                        {divisionList.map((item) => <MenuItem value={item}>{item}</MenuItem>)}
+                     
                     </Select>
                   </FormControl>
                 </div>
@@ -448,11 +486,11 @@ useEffect(() => {
             <Upload size={14} /> Bulk Upload
           </div>
         </div>
-        <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
+        {/* <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
           <div className="font-bold text-xs flex gap-2 justify-center items-center">
             <FileDown size={14} /> Export Data
           </div>
-        </div>
+        </div> */}
         <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
           <div className="font-bold text-xs flex gap-2 justify-center items-center">
             <ClipboardPlus size={14} /> Generate Report

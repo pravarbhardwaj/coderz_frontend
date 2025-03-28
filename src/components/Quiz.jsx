@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 
 const Quiz = ({quizData}) => {
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   
@@ -20,11 +21,19 @@ const Quiz = ({quizData}) => {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < quizData.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+     
       alert("Quiz Completed!");
+
+      if (localStorage.getItem("role") == "Teacher")
+      {
+        return
+      }
+
+      console.log("selectedAnswers -- ", selectedAnswers)
     }
   };
 
@@ -37,10 +46,10 @@ const Quiz = ({quizData}) => {
   
   return (
     <div className="flex flex-col bg-gray-100 p-6 w-full">
-         <button
+       { localStorage.getItem("role") == "Teacher" && <button
         className="mb-4 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition"
         onClick={handleRestart}
-    >Restart</button>
+    >Restart</button>}
       <div className="bg-white shadow-lg rounded-lg p-6 w-full">
         <h2 className="text-lg font-semibold mb-4">{currentQuestion.question}</h2>
 

@@ -33,14 +33,14 @@ export default function Sidebar({ children }) {
 }
 
 const activeMapper = {
-  Dashboard: "/",
-  "Classroom Project": "/mycourse",
-  Schedule: "/schedule",
+  // Dashboard: "/",
+  "Projects": "/",
+  // Schedule: "/schedule",
   "School Details": "/schooldetails",
-  Curriculum: "/curriculum",
-  "My Projects": "/myprojects",
-  "Project Review": "/projectreview",
-  "My Class": "/myclass",
+  // Curriculum: "/curriculum",
+  // "My Projects": "/myprojects",
+  // "Project Review": "/projectreview",
+  // "My Class": "/myclass",
 
 
 };
