@@ -53,7 +53,7 @@ function SchoolDetails() {
               <UsersRound size={20} />
               <span>Student</span>
             </div>
-            <div
+            {/* <div
               className={`rounded-t-md justify-center flex border-b-2 border-custom-blue bg-${
                 selectedTab == "settings" ? "custom-orange-dark" : "custom-blue"
               } px-2 py-1 hover:cursor-pointer gap-2`}
@@ -61,7 +61,7 @@ function SchoolDetails() {
             >
               <Setting size={20} />
               <span>Settings</span>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

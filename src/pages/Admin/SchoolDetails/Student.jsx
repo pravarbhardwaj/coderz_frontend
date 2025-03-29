@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAPI, postAPI } from "../../../request/APIManager";
+import { getAPI, postAPI, putAPI } from "../../../request/APIManager";
 import { Circles } from "react-loader-spinner";
 import Pagination from "../../../components/Pagination";
 import ProfilePictureUploader from "../../../components/Faculty/ProfilePictureUploader";
@@ -45,170 +45,214 @@ function Student() {
   const [isActive, setIsActive] = useState(true);
   const [pageSize, setPageSize] = useState(10);
   const [files, setFiles] = useState([]);
-  const [uploadTab, setUplodTab] = useState(false)
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [contact, setContact] = useState("")
-  const [altContact, setAltContact] = useState("")
-  const [email, setEmail] = useState("")
-  const [grade, setGrade] = useState("")
-  const [division, setDivision] = useState("")
-  const [admissionNumber, setAdmissionNumber] = useState("")
+  const [uploadTab, setUplodTab] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [contact, setContact] = useState("");
+  const [altContact, setAltContact] = useState("");
+  const [email, setEmail] = useState("");
+  const [grade, setGrade] = useState("");
+  const [division, setDivision] = useState("");
+  const [admissionNumber, setAdmissionNumber] = useState("");
   const [modalLoader, setModalLoader] = useState(false);
   const [edit, setEdit] = useState();
-  const [gradeMapping, setGradeMapping] = useState({})
-  const [divisionList, setDivisionList] = useState([])
+  const [gradeMapping, setGradeMapping] = useState({});
+  const [divisionList, setDivisionList] = useState([]);
+  const [file, setFile] = useState(null);
+  const [date, setDate] = useState(null)
 
   useEffect(() => {
-    if (!grade){
-      return
+    if (!grade) {
+      return;
     }
-    console.log("yaaaaaaaaaaa - ", gradeMapping[grade]["divisions"])
+    console.log("yaaaaaaaaaaa - ", gradeMapping[grade]["divisions"]);
     const list = gradeMapping[grade]["divisions"].split(",");
-    setDivisionList([...list])
-  }, [grade])
-  
+    setDivisionList([...list]);
+  }, [grade]);
 
-useEffect(() => {
+  useEffect(() => {
     if (!edit) {
       return;
     }
     fetchStudentData();
-
   }, [edit]);
 
+  useEffect(() => {
+    let allowSubmit = true;
 
-    useEffect(() => {
-      let allowSubmit = true;
-  
+    if (
+      !firstName ||
+      !lastName ||
+      !gender ||
+      !contact ||
+      !email ||
+      !admissionNumber ||
+      !division ||
+      !grade ||
+      !date
+    ) {
+      allowSubmit = false;
+    } else if (contact.length != 10) {
+      allowSubmit = false;
+    } else if (!validEmail(email)) {
+      allowSubmit = false;
+    }
 
-      
-        if (!firstName || !lastName || !gender || !contact || !email || !admissionNumber || !division || !grade) {
-          allowSubmit = false;
-        } else if ( contact.length != 10)
-         {
-          allowSubmit = false;
-        } else if (!validEmail(email)) {
-          allowSubmit = false;
-        }
-      
-  
-      setSubmit(allowSubmit);
-    }, [firstName, lastName, gender, email, admissionNumber, division, grade]);
+    setSubmit(allowSubmit);
+  }, [firstName, lastName, gender, email, admissionNumber, division, grade, date]);
 
-useEffect(() => {
-  fetchAllGrades()
-}, [])
+  useEffect(() => {
+    fetchAllGrades();
+  }, []);
 
   const fetchAllGrades = async () => {
-      const response = await getAPI(
-        navigation,
-        "/accounts/admin/grade-division-mapping/"
-      );
+    const response = await getAPI(
+      navigation,
+      "/accounts/admin/grade-division-mapping/"
+    );
 
-    
-      const gs = {};
-      response.forEach((item) => (gs[item.grade] = item));
-      console.log("resp - ", response)
-      setGradeMapping({...gs})
+    const gs = {};
+    response.forEach((item) => (gs[item.grade] = item));
+    console.log("resp - ", response);
+    setGradeMapping({ ...gs });
+  };
 
-      
-    };
-
-    const uploadBulk = async () => {
-      if (files.length !== 1) {
-        return
-      }
-      const formData = new FormData()
-      formData.append("file", files[0])
-      const response = await postAPI(
-        navigation,
-        "/accounts/admin/students-bulk-upload/",
-        formData
-      );
-      console.log("Upload resp = ", response)
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
     }
+  };
+
+  const uploadBulk = async () => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await postAPI(
+      navigation,
+      "/accounts/admin/students-bulk-upload/",
+      formData,
+      true
+    );
+    console.log("Upload resp = ", response);
+    if (response) {
+      alert("Uploaded!");
+    }
+    setFile(null);
+    setUplodTab(false);
+    fetchStudentsData();
+  };
+
+  const handleSubmit = async () => {
+      
+    
+    let response = false
+    console.log("edit = ", edit)
+    
+    if (edit) {
+      const payload = {
+        "Email": email,
+        "FirstName": firstName,
+        "LastName": lastName,
+        "Gender": gender,
+        "contact":contact,
+        "GradeId": grade,
+        "DivisionId": division,
+        "AdmissionNo": admissionNumber,
+        "IsActice": isActive,
+        "date_of_birth": date
+        
+        
+        
+    }
+      response = await putAPI(navigation, `accounts/admin/students/${edit}/` , payload)
+  
+    }
+    else {
+      const payload = {
+        "email": email,
+        "first_name": firstName,
+        "last_name": lastName,
+        "gender": gender,
+        "contact":contact,
+        "GradeId": grade,
+        "DivisionId": division,
+        "AdmissionNo": admissionNumber,
+        "date_of_birth": date
+    }
+     response = await postAPI(navigation, "accounts/admin/students/add/" , payload)
+  
+    }
+  
+    if (response) {
+      alert(edit ? "Student Updated" : "Student Created!")
+      handleModalClose()
+    }
+    }
+    
   const handleModalClose = () => {
-    setFirstName("")
-    setLastName("")
-    setGender("")
-    setContact("")
-    setAltContact("")
-    setEmail("")
-    setAdmissionNumber("")
-    setGrade(null)
-    setDivision(null)
-    setIsActive(true)
+    setFirstName("");
+    setLastName("");
+    setGender("");
+    setContact("");
+    setAltContact("");
+    setEmail("");
+    setAdmissionNumber("");
+    setGrade(null);
+    setDivision(null);
+    setIsActive(true);
     setOpen(false);
     setEdit(null);
-    
+    setDate(null);
   };
 
   const ModalLoader = () => {
-      return (
-        <div className="flex h-full items-center justify-center mt-10">
-          <Circles />
-        </div>
-      );
-    };
-
+    return (
+      <div className="flex h-full items-center justify-center mt-10">
+        <Circles />
+      </div>
+    );
+  };
 
   const fetchStudentData = async () => {
-      setModalLoader(true);
-      const response = await getAPI(
-        navigation,
-        `accounts/admin/students/${edit}/`
-      );
-      setFirstName(response?.FirstName ?? "");
-      setLastName(response?.LastName ?? "");
-      setIsActive(response?.IsActive ?? "")
-      setGender(response?.Gender ?? "")
-      setEmail(response?.Email ?? "")
-      setDivision(response?.DivisionId ?? "")
-      setGrade(response?.GradeId ?? "")
-      setContact(response?.PhoneNumber ?? "")
-      setAdmissionNumber(response?.AdmissionNo ?? "")
-      setModalLoader(false);
-    };
-  
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      setFiles([...files, ...acceptedFiles]);
-    },
-  });
+    setModalLoader(true);
+    const response = await getAPI(
+      navigation,
+      `accounts/admin/students/${edit}/`
+    );
+    setFirstName(response?.FirstName ?? "");
+    setLastName(response?.LastName ?? "");
+    setIsActive(response?.IsActive ?? "");
+    setGender(response?.Gender ?? "");
+    setEmail(response?.Email ?? "");
+    setDivision(response?.DivisionId ?? "");
+    setGrade(response?.GradeId ?? "");
+    setContact(response?.PhoneNumber ?? "");
+    setAdmissionNumber(response?.AdmissionNo ?? "");
+    setDate(response?.date_of_birth)
+
+    setModalLoader(false);
+  };
 
   const handleChange = (value) => {
     setDropdown(value.target.value);
   };
 
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   const BulkStudentUpload = () => {
     return (
       <div className="w-full">
-        <div
-          {...getRootProps()}
-          className="mt-10 p-6 border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg flex-col cursor-pointer"
-        >
-          <div className="justify-center mt-8 flex">
-            {" "}
-            <input {...getInputProps()} ref={fileInputRef} />
-            <p className="text-blue-400 text-lg">
-              Drag And Drop File Here To Upload
-            </p>
-          </div>
+        <form className="flex flex-col items-center space-y-4 p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-4">Upload a File</h2>
 
-          <button
-            className="mt-4 px-4 py-2 border border-blue-400 text-blue-900 flex items-center rounded-md hover:bg-blue-100 transition"
-            onClick={handleButtonClick}
-          >
-            <Upload className="mr-2" size={20} /> ADD FILES
-          </button>
-        </div>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="border-2 border-gray-300 p-2 rounded-lg file:border-none file:bg-blue-500 file:text-white file:px-4 file:py-2 file:rounded-lg hover:file:bg-blue-600"
+          />
+
+          {file && (
+            <p className="text-sm text-gray-700">Selected file: {file.name}</p>
+          )}
+        </form>
         <div className="flex justify-center items-center mt-5">
           <div>
             <div> Max File Size 15 MB.</div>
@@ -219,8 +263,14 @@ useEffect(() => {
           </div>
         </div>
         <div className="flex justify-center">
-          <div className={`${files.length != 1 ? "cursor-pointer bg-custom-blue" : "bg-gray-500"} p-2 rounded-md border-2 text-sm font-semibold flex gap-2`}
-           onClick={() => uploadBulk()}>
+          <div
+            className={`${
+              files.length != 1
+                ? "cursor-pointer bg-custom-blue"
+                : "bg-gray-500"
+            } p-2 rounded-md border-2 text-sm font-semibold flex gap-2`}
+            onClick={() => uploadBulk()}
+          >
             <Upload size={18} />
             Upload
           </div>
@@ -273,12 +323,13 @@ useEffect(() => {
 
   return (
     <div>
-      <Modal 
-      open={uploadTab}
-      onClose={() => setUplodTab(false)}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
-      className="px-10 content-center">
+      <Modal
+        open={uploadTab}
+        onClose={() => setUplodTab(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        className="px-10 content-center"
+      >
         <Box className="bg-white p-10">
           <BulkStudentUpload />
         </Box>
@@ -299,80 +350,71 @@ useEffect(() => {
                 <CircleX />
               </div>
             </div>
-            {modalLoader && <ModalLoader /> }
+            {modalLoader && <ModalLoader />}
 
-            {!modalLoader && <div className="flex gap-6 mt-3">
-              {/* <ProfilePictureUploader /> */}
-              <div>
-                <div className="flex gap-4">
-                  <TextField
-                    label="First Name"
-                    placeholder="First Name"
-                    variant="outlined"
-                    className="w-full"
-                    value={firstName}
-                    required
-                    onChange={(value) =>
-                      setFirstName(value.target.value)
-                    }
-                  />
-                  <TextField
-                    id="outlined-basic"
-                    label="Last Name"
-                    placeholder="Last Name"
-                    variant="outlined"
-                    className="w-full"
-                    value={lastName}
-                    required
-                    onChange={(value) =>
-                      setLastName(value.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="flex gap-4 mt-3">
-                  <div>
-                    <FormControl>
-                      <InputLabel>Gender*</InputLabel>
-                      <Select
-                        value={gender}
-                        label="Gender*"
-                        onChange={(value) => {
-                          setGender(value.target.value);
-                         
-                        }}
-                        className="w-40"
-                        required
-                      >
-            
-                        <MenuItem value={"male"}>Male</MenuItem>
-                        <MenuItem value={"female"}>Female</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
-                  <div className="w-full">
+            {!modalLoader && (
+              <div className="flex gap-6 mt-3">
+                {/* <ProfilePictureUploader /> */}
+                <div>
+                  <div className="flex gap-4">
                     <TextField
-                      placeholder="Contact"
-                      label="Contact"
+                      label="First Name"
+                      placeholder="First Name"
                       variant="outlined"
                       className="w-full"
+                      value={firstName}
                       required
-                      value={contact}
-                      onChange={(value) =>
-                        setContact(value.target.value)
-                      }
+                      onChange={(value) => setFirstName(value.target.value)}
                     />
-                    {contact &&
-                      contact.length != 10 && (
+                    <TextField
+                      id="outlined-basic"
+                      label="Last Name"
+                      placeholder="Last Name"
+                      variant="outlined"
+                      className="w-full"
+                      value={lastName}
+                      required
+                      onChange={(value) => setLastName(value.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex gap-4 mt-3">
+                    <div>
+                      <FormControl>
+                        <InputLabel>Gender*</InputLabel>
+                        <Select
+                          value={gender}
+                          label="Gender*"
+                          onChange={(value) => {
+                            setGender(value.target.value);
+                          }}
+                          className="w-40"
+                          required
+                        >
+                          <MenuItem value={"male"}>Male</MenuItem>
+                          <MenuItem value={"female"}>Female</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </div>
+                    <div className="w-full">
+                      <TextField
+                        placeholder="Contact"
+                        label="Contact"
+                        variant="outlined"
+                        className="w-full"
+                        required
+                        value={contact}
+                        onChange={(value) => setContact(value.target.value)}
+                      />
+                      {contact && contact.length != 10 && (
                         <div className="text-red-500 text-sm">
                           Mobile number should be of 10 digits!
                         </div>
                       )}
+                    </div>
                   </div>
-                </div>
-                <div className="w-full mt-4"> 
-
-                <TextField
+                  <div className="w-full mt-4">
+                    <TextField
                       id="outlined-basic"
                       label="Email"
                       variant="outlined"
@@ -381,94 +423,90 @@ useEffect(() => {
                       placeholder="Email"
                       type="email"
                       value={email}
+                      onChange={(value) => setEmail(value.target.value)}
+                    />
+                    <div>
+                      {email && !validEmail(email) && (
+                        <div className="text-red-500 text-sm">
+                          Please input valid Email!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-4 mt-3">
+                    <FormControl>
+                      <InputLabel>Grade*</InputLabel>
+                      <Select
+                        value={grade}
+                        label="Grade*"
+                        onChange={(value) => {
+                          setGrade(value.target.value);
+                        }}
+                        className="w-40"
+                        required
+                      >
+                        {Object.keys(gradeMapping).map((item) => (
+                          <MenuItem value={item}>{item}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl>
+                      <InputLabel>Division*</InputLabel>
+                      <Select
+                        disabled={grade ? false : true}
+                        value={division}
+                        label="Division*"
+                        onChange={(value) => {
+                          setDivision(value.target.value);
+                        }}
+                        className="w-40"
+                        required
+                      >
+                        {divisionList.map((item) => (
+                          <MenuItem value={item}>{item}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
+                  <div className="mt-3">
+                    <TextField
+                      label="Admission Number"
+                      variant="outlined"
+                      className="w-full"
+                      required
+                      placeholder="Admission Number"
+                      value={admissionNumber}
                       onChange={(value) =>
-                        setEmail(value.target.value)
+                        setAdmissionNumber(value.target.value)
                       }
                     />
-                      <div>
-                   
-
-                   {email &&
-                     !validEmail(email) && (
-                       <div className="text-red-500 text-sm">
-                         Please input valid Email!
-                       </div>
-                     )}
-                 </div>
-                </div>
-                <div className="flex gap-4 mt-3">
-                
-                  <FormControl>
-                    <InputLabel>Grade*</InputLabel>
-                    <Select
-                      value={grade}
-                      label="Grade*"
-                      onChange={(value) => {
-                        setGrade(value.target.value);
-                     
-                      }}
-                      className="w-40"
-                      required
-                    >
-                      {
-                        Object.keys(gradeMapping).map((item) => 
-                          <MenuItem value={item}>{item}</MenuItem>
-
-                        )
-                      }
-                     
-                    </Select>
-                  </FormControl>
-                  <FormControl>
-                    <InputLabel>Division*</InputLabel>
-                    <Select
-                    disabled={grade?false:true}
-                      value={division}
-                      label="Division*"
-                      onChange={(value) => {
-                        setDivision(value.target.value);
-                        
-                      }}
-                      className="w-40"
-                      required
-                    >
-                        {divisionList.map((item) => <MenuItem value={item}>{item}</MenuItem>)}
-                     
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className="mt-3">
-                  <TextField
-                    label="Admission Number"
-                    variant="outlined"
-                    className="w-full"
-                    required
-                    placeholder="Admission Number"
-                    value={admissionNumber}
-                    onChange={(value) =>
-                      setAdmissionNumber(value.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex">
-                  <label className="flex items-center gap-2 text-gray-600">
-                    <input type="checkbox" className="accent-gray-500" />
-                    Active
-                  </label>
-                  <div
-                    className={`p-2 border-b-2 rounded-md items-center justify-center mt-2 ml-auto px-5
+                  </div>
+                  <div>Date Of Birth: <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="border p-2 rounded col-span-2 mt-2"
+        /></div>
+                  <div className="flex">
+                    <label className="flex items-center gap-2 text-gray-600">
+                      <input type="checkbox" className="accent-gray-500" />
+                      Active
+                    </label>
+                    <div
+                      className={`p-2 border-b-2 rounded-md items-center justify-center mt-2 ml-auto px-5
                   ${
                     submit == true
                       ? "hover:cursor-pointer bg-custom-blue"
                       : "bg-gray-500"
                   }`}
-                    onClick={() => null}
-                  >
-                    <div className="font-bold text-xs ">Submit</div>
+                      onClick={() => handleSubmit()}
+                    >
+                      <div className="font-bold text-xs ">Submit</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>}
+            )}
           </div>
         </Box>
       </Modal>
@@ -481,7 +519,10 @@ useEffect(() => {
             <Plus size={14} /> Add Student
           </div>
         </div>
-        <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex" onClick={() => setUplodTab(true)}>
+        <div
+          className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex"
+          onClick={() => setUplodTab(true)}
+        >
           <div className="font-bold text-xs flex gap-2 justify-center items-center">
             <Upload size={14} /> Bulk Upload
           </div>
@@ -491,11 +532,11 @@ useEffect(() => {
             <FileDown size={14} /> Export Data
           </div>
         </div> */}
-        <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
+        {/* <div className="py-2 px-4 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer flex">
           <div className="font-bold text-xs flex gap-2 justify-center items-center">
             <ClipboardPlus size={14} /> Generate Report
           </div>
-        </div>
+        </div> */}
         <div className="ml-auto flex-row">
           <div className="text-sm">Student List</div>
           <Select
@@ -551,9 +592,12 @@ useEffect(() => {
                 <td className="border border-gray-300 p-2">{item.Gender}</td>
                 <td className="border border-gray-300 p-2 space-x-2">
                   <Tooltip title="Edit">
-                    <button className="p-2 bg-custom-blue border-b-2 rounded-md" onClick={() => {
+                    <button
+                      className="p-2 bg-custom-blue border-b-2 rounded-md"
+                      onClick={() => {
                         setEdit(item.UserId);
-                      }}>
+                      }}
+                    >
                       <Edit size={16} className="mr-1" />
                     </button>
                   </Tooltip>
@@ -562,16 +606,16 @@ useEffect(() => {
                       <Lock size={16} className="mr-1" />
                     </button>
                   </Tooltip>
-                  <Tooltip title="Report">
+                  {/* <Tooltip title="Report">
                     <button className="p-2 bg-custom-blue border-b-2 rounded-md">
                       <ChartLine size={16} className="mr-1" />
                     </button>
-                  </Tooltip>
-                  <Tooltip title="Migrate">
+                  </Tooltip> */}
+                  {/* <Tooltip title="Migrate">
                     <button className="p-2 bg-custom-blue border-b-2 rounded-md">
                       <FastForward size={16} className="mr-1" />
                     </button>
-                  </Tooltip>
+                  </Tooltip> */}
                 </td>
               </tr>
             ))}

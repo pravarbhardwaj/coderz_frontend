@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { getAPI } from '../../../request/APIManager'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 import Asset from '../../../components/Asset'
+import QuizResults from '../../../components/QuizResults'
 
 const PPT = ({data}) => {
     return (
@@ -110,7 +111,9 @@ function SessionPage({setSession, renderSession, data, navigation}) {
       </div>
       {selectedTab === "Session PPT" && <PPT data={selectedSession}/>}
       {selectedTab === "Overview" && <Overview data={selectedSession} />}
-      {selectedTab === "Reflectives" && <Quiz quizData={data.quizzes}/>}
+      {selectedTab === "Reflectives" && (data.submitted_quizzes.length == 0 ? <Quiz quizData={data.quizzes}/> : <QuizResults quizData={data.submitted_quizzes}/>)}
+      
+
       {selectedTab === "Assets" && <Asset assets={data.assets} />}
 
 

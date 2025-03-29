@@ -40,6 +40,7 @@ function Faculty() {
   const [edit, setEdit] = useState();
   const [modalLoader, setModalLoader] = useState(false);
   const [gdMapping, setGdMapping] = useState({})
+  const [teacherResponse, setTeacherReponse] = useState({})
 
   useEffect(() => {
     console.log("Reacherd  ", gdMapping)
@@ -78,7 +79,9 @@ function Faculty() {
       "FirstName": firstName,
       "LastName": lastName,
       "Gender": gender,
-      "contact":contact,
+      "ContactNo":contact,
+      "AdditionalContactNo":altContact,
+      "is_active": IsActive,
       "grade_division_mapping_update": 
           gdMapping
       
@@ -92,7 +95,9 @@ function Faculty() {
       "first_name": firstName,
       "last_name": lastName,
       "gender": gender,
-      "contact":contact,
+      "ContactNo":contact,
+      "AdditionalContactNo":altContact,
+      "is_active": IsActive,
       "grade_division_mapping": 
           gdMapping
       
@@ -141,10 +146,14 @@ function Faculty() {
     setIsActive(response?.IsActive ?? "")
     setGender(response?.Gender ?? "")
     setEmail(response?.email ?? "")
-    setContact(response?.contact ?? "")
+    setContact(response?.ContactNo ?? "")
+    setAltContact(response?.AdditionalContactNo ?? "")
+    
     setModalLoader(false);
     console.log("yaa =- ", response?.grade_division_mapping)
     setGdMapping({...response?.grade_division_mapping});
+    setTeacherReponse({...response});
+
   };
 
   useEffect(() => {
@@ -172,6 +181,7 @@ function Faculty() {
     setGdMapping({})
     setIsActive(true)
     setOpen(false);
+    setTeacherReponse({})
     setEdit(null);
   };
   
@@ -258,6 +268,7 @@ function Faculty() {
               placeholder="Alternative Contact"
               variant="outlined"
               className="w-full"
+              onChange={(value) => setAltContact(value.target.value)}
             />
           </div>
           <div className="flex gap-4 mt-3">
@@ -282,7 +293,7 @@ function Faculty() {
             </div>
           </div>
 
-          <Grades setGdMapping={setGdMapping}/>
+          <Grades setGdMapping={setGdMapping} userPayload={teacherResponse}/>
 
           <div className="flex">
             <label className="flex items-center gap-2 text-gray-600">
