@@ -59,13 +59,12 @@ function Student() {
   const [gradeMapping, setGradeMapping] = useState({});
   const [divisionList, setDivisionList] = useState([]);
   const [file, setFile] = useState(null);
-  const [date, setDate] = useState(null)
+  const [date, setDate] = useState(null);
 
   useEffect(() => {
     if (!grade) {
       return;
     }
-    console.log("yaaaaaaaaaaa - ", gradeMapping[grade]["divisions"]);
     const list = gradeMapping[grade]["divisions"].split(",");
     setDivisionList([...list]);
   }, [grade]);
@@ -99,7 +98,16 @@ function Student() {
     }
 
     setSubmit(allowSubmit);
-  }, [firstName, lastName, gender, email, admissionNumber, division, grade, date]);
+  }, [
+    firstName,
+    lastName,
+    gender,
+    email,
+    admissionNumber,
+    division,
+    grade,
+    date,
+  ]);
 
   useEffect(() => {
     fetchAllGrades();
@@ -113,7 +121,6 @@ function Student() {
 
     const gs = {};
     response.forEach((item) => (gs[item.grade] = item));
-    console.log("resp - ", response);
     setGradeMapping({ ...gs });
   };
 
@@ -133,7 +140,6 @@ function Student() {
       formData,
       true
     );
-    console.log("Upload resp = ", response);
     if (response) {
       alert("Uploaded!");
     }
@@ -143,52 +149,51 @@ function Student() {
   };
 
   const handleSubmit = async () => {
-      
-    
-    let response = false
-    console.log("edit = ", edit)
-    
+    let response = false;
+
     if (edit) {
       const payload = {
-        "Email": email,
-        "FirstName": firstName,
-        "LastName": lastName,
-        "Gender": gender,
-        "contact":contact,
-        "GradeId": grade,
-        "DivisionId": division,
-        "AdmissionNo": admissionNumber,
-        "IsActice": isActive,
-        "date_of_birth": date
-        
-        
-        
-    }
-      response = await putAPI(navigation, `accounts/admin/students/${edit}/` , payload)
-  
-    }
-    else {
+        Email: email,
+        FirstName: firstName,
+        LastName: lastName,
+        Gender: gender,
+        contact: contact,
+        GradeId: grade,
+        DivisionId: division,
+        AdmissionNo: admissionNumber,
+        IsActice: isActive,
+        date_of_birth: date,
+      };
+      response = await putAPI(
+        navigation,
+        `accounts/admin/students/${edit}/`,
+        payload
+      );
+    } else {
       const payload = {
-        "email": email,
-        "first_name": firstName,
-        "last_name": lastName,
-        "gender": gender,
-        "contact":contact,
-        "GradeId": grade,
-        "DivisionId": division,
-        "AdmissionNo": admissionNumber,
-        "date_of_birth": date
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        gender: gender,
+        contact: contact,
+        GradeId: grade,
+        DivisionId: division,
+        AdmissionNo: admissionNumber,
+        date_of_birth: date,
+      };
+      response = await postAPI(
+        navigation,
+        "accounts/admin/students/add/",
+        payload
+      );
     }
-     response = await postAPI(navigation, "accounts/admin/students/add/" , payload)
-  
-    }
-  
+
     if (response) {
-      alert(edit ? "Student Updated" : "Student Created!")
-      handleModalClose()
+      alert(edit ? "Student Updated" : "Student Created!");
+      handleModalClose();
     }
-    }
-    
+  };
+
   const handleModalClose = () => {
     setFirstName("");
     setLastName("");
@@ -228,7 +233,7 @@ function Student() {
     setGrade(response?.GradeId ?? "");
     setContact(response?.PhoneNumber ?? "");
     setAdmissionNumber(response?.AdmissionNo ?? "");
-    setDate(response?.date_of_birth)
+    setDate(response?.date_of_birth);
 
     setModalLoader(false);
   };
@@ -288,7 +293,6 @@ function Student() {
       navigation,
       `/accounts/admin/students/?page=${page}&items_per_page=${pageSize}&is_active=${isActive}`
     );
-    console.log("REsponse = ", response);
     setStudents({ ...response });
     setLoader(false);
   };
@@ -481,12 +485,15 @@ function Student() {
                       }
                     />
                   </div>
-                  <div>Date Of Birth: <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border p-2 rounded col-span-2 mt-2"
-        /></div>
+                  <div>
+                    Date Of Birth:{" "}
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="border p-2 rounded col-span-2 mt-2"
+                    />
+                  </div>
                   <div className="flex">
                     <label className="flex items-center gap-2 text-gray-600">
                       <input type="checkbox" className="accent-gray-500" />

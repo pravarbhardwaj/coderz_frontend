@@ -6,15 +6,13 @@ import axiosConfig from "../../../request/request";
 function ClassroomProject() {
   const [project, setProject] = useState(false);
   const [projectId, setProjectId] = useState();
-  
-  const getData = async () => {
-    const response = await axiosConfig.get("projects/admin/project/")
-    console.log("response = ", response)
 
-  }
+  const getData = async () => {
+    const response = await axiosConfig.get("projects/admin/project/");
+  };
   useEffect(() => {
-    getData()
-  })
+    getData();
+  });
   const data = [
     {
       id: 1,
@@ -45,21 +43,25 @@ function ClassroomProject() {
   const ClassroomContent = () => {
     return (
       <div className="mt-5">
-      <div className="text-xl font-bold">Classroom Project</div>
-      <div className="grid grid-cols-12 gap-4 mt-5">
-        {data.map((item) => (
-          <div className="col-span-12 md:col-span-4" key={item.id}>
-            <ClassroomCard data={item} setProject={setProject} setProjectId={setProjectId} />
-          </div>
-        ))}
+        <div className="text-xl font-bold">Classroom Project</div>
+        <div className="grid grid-cols-12 gap-4 mt-5">
+          {data.map((item) => (
+            <div className="col-span-12 md:col-span-4" key={item.id}>
+              <ClassroomCard
+                data={item}
+                setProject={setProject}
+                setProjectId={setProjectId}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-    )
-  }
+    );
+  };
   return (
     <div>
       {!project && <ClassroomContent />}
-     {project && <ProjectPage setProject={setProject} projectId={projectId}/>}
+      {project && <ProjectPage setProject={setProject} projectId={projectId} />}
     </div>
   );
 }

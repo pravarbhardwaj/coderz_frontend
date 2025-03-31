@@ -85,6 +85,34 @@ export const putAPI = async (navigation, url, payload) => {
   }
 };
 
+export const patchAPI = async (navigation, url, payload, upload=false) => {
+  try {
+    const headers = {
+      "Cache-Control": "no-cache",
+      Accept: "application/json",
+    };
+
+    headers["Content-Type"] = upload ? "multipart/form-data" : "application/json"
+
+    const response = await api.patch(url, payload, { headers: headers });
+    if (response.status == 400) {
+      return { error: response.data.error };
+    }
+    return response.data;
+  } catch (err) {
+    if (err?.status == 401) {
+      handleLogout(navigation);
+      return { status: "error" };
+    }
+    alert(err.response.data.error)
+    console.log("Patch error - ", err.response.data.error);
+
+    return false
+    // console.log("Post error - ", Object.keys(err));
+
+  }
+};
+
 export const loginApi = async (username, password, setUserRole) => {
   try {
     const requestUrl = BASE_URL + "accounts/login/";

@@ -6,156 +6,166 @@ import { getAPI, putAPI } from "../../../request/APIManager";
 import { useNavigate } from "react-router-dom";
 import { Circles } from "react-loader-spinner";
 
-const Mappings = ({migrate, setMigrate}) => {
-  const navigation = useNavigate()
+const Mappings = ({ migrate, setMigrate }) => {
+  const navigation = useNavigate();
   const [open, setOpen] = useState(false);
-  const [grades, setGrades] = useState([])
-  const [addDivisionData, setAddDivision] = useState()
-  const [modalLoader, setModalLoader] = useState(false)
+  const [grades, setGrades] = useState([]);
+  const [addDivisionData, setAddDivision] = useState();
+  const [modalLoader, setModalLoader] = useState(false);
   const [divisions, setDivisions] = useState([]);
 
-
-  const fetchData = async() => {
-    const response = await getAPI(navigation, "accounts/admin/grade-division-mapping/")
-    console.log("Mapping Response = ", response)
-    setGrades([...response])
-  }
+  const fetchData = async () => {
+    const response = await getAPI(
+      navigation,
+      "accounts/admin/grade-division-mapping/"
+    );
+    setGrades([...response]);
+  };
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const handleSubmit = async () => {
-    setModalLoader(true)
-    console.log("divisions")
+    setModalLoader(true);
     if (divisions.includes("")) {
-      console.log("here?")
-      alert("Please fill all divisions input")
-      return
+      alert("Please fill all divisions input");
+      return;
     }
-    const response = await putAPI(navigation, `accounts/admin/single-grade-division/${addDivisionData["class"]}/` , {divisions: divisions})
-    await fetchData()
-    setAddDivision(null)
-    setOpen(false)
-    setModalLoader(false)
-  }
+    const response = await putAPI(
+      navigation,
+      `accounts/admin/single-grade-division/${addDivisionData["class"]}/`,
+      { divisions: divisions }
+    );
+    await fetchData();
+    setAddDivision(null);
+    setOpen(false);
+    setModalLoader(false);
+  };
 
-   const deleteDivision = (index) => {
-    divisions.splice(index, 1)
-    setDivisions([...divisions])
-   }
+  const deleteDivision = (index) => {
+    divisions.splice(index, 1);
+    setDivisions([...divisions]);
+  };
 
   const addDivision = () => {
-    divisions.push("")
-    setDivisions([...divisions])
+    divisions.push("");
+    setDivisions([...divisions]);
   };
 
   const handleChange = (index, value) => {
-    divisions[index] = value
-    setDivisions([...divisions])
-  }
+    divisions[index] = value;
+    setDivisions([...divisions]);
+  };
 
   const fetchSingleGrade = async () => {
-    setModalLoader(true)
-    const response = await getAPI(navigation, `accounts/admin/single-grade-division/${addDivisionData["class"]}/`)
-    console.log("why?")
-    setDivisions([...response.divisions])
-    setModalLoader(false)
-  }
+    setModalLoader(true);
+    const response = await getAPI(
+      navigation,
+      `accounts/admin/single-grade-division/${addDivisionData["class"]}/`
+    );
+    setDivisions([...response.divisions]);
+    setModalLoader(false);
+  };
 
   const ModalLoader = () => {
-      return (
-        <div className="flex h-full items-center justify-center mt-10">
-          <Circles />
-        </div>
-      );
-    };
+    return (
+      <div className="flex h-full items-center justify-center mt-10">
+        <Circles />
+      </div>
+    );
+  };
 
-    const ModalContent = () => {
-      return (
-        <div>
-            <div className="text-center px-60">
-              <div className="font-semibold text-2xl">Add Division</div>
-              <div className="font-semibold">1st</div>
+  const ModalContent = () => {
+    return (
+      <div>
+        <div className="text-center px-60">
+          <div className="font-semibold text-2xl">Add Division</div>
+          <div className="font-semibold">1st</div>
+        </div>
+        <div className="border-b-2 mt-5" />
+        <div className="flex">
+          <div
+            className="p-2 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer"
+            onClick={addDivision}
+          >
+            <div className="font-bold text-xs flex items-center gap-1">
+              <Plus size={20} /> Add
             </div>
-            <div className="border-b-2 mt-5" />
-            <div className="flex">
-              <div className="p-2 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer" onClick={addDivision}>
-                <div className="font-bold text-xs flex items-center gap-1">
-                  <Plus size={20} /> Add
-                </div>
-              </div>
-            </div>
-            <div className="mt-5">
-              {divisions.map((item, index) => (
-                <Box
-                  component="form"
-                  sx={{ "& > :not(style)": { m: 1, height: 60 } }}
+          </div>
+        </div>
+        <div className="mt-5">
+          {divisions.map((item, index) => (
+            <Box
+              component="form"
+              sx={{ "& > :not(style)": { m: 1, height: 60 } }}
+            >
+              <div className="flex items-center gap-2">
+                <TextField
+                  className="w-full"
+                  id="outlined-basic"
+                  label="Division Name"
+                  variant="outlined"
+                  value={divisions[index]}
+                  onChange={(value) => {
+                    handleChange(index, value.target.value);
+                  }}
+                />
+                <div
+                  className="ml-auto text-red-400 cursor-pointer"
+                  onClick={() => deleteDivision(index)}
                 >
-                  <div className="flex items-center gap-2">
-                    <TextField
-                      className="w-full"
-                      id="outlined-basic"
-                      label="Division Name"
-                      variant="outlined"
-                      value={divisions[index]}
-                      
-                      onChange={(value) => {
-                        console.log("value - ", value.target.value)
-                        handleChange(index, value.target.value)
-                      }}
-                    />
-                    <div className="ml-auto text-red-400 cursor-pointer" onClick={() => deleteDivision(index)}>
-                      <Trash size={20} />
-                    </div>
-                  </div>
-                </Box>
-              ))}
-              <div className="flex justify-center" onClick={handleSubmit}>
-                <div className="p-2 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer">
-                  <div className="font-bold text-xs flex items-center gap-1">
-                    Submit
-                  </div>
+                  <Trash size={20} />
                 </div>
               </div>
+            </Box>
+          ))}
+          <div className="flex justify-center" onClick={handleSubmit}>
+            <div className="p-2 border-b-2 rounded-md items-center justify-center mt-2 bg-custom-blue hover:cursor-pointer">
+              <div className="font-bold text-xs flex items-center gap-1">
+                Submit
+              </div>
             </div>
-            </div>
-      )
-    }
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (!addDivisionData) {
-      return
+      return;
     }
 
-    fetchSingleGrade()
-    
-  }, [addDivisionData])
-  
-  if (migrate)
-  {
-    return (
-      <Migrate setMigrate={setMigrate}/>
-     )
+    fetchSingleGrade();
+  }, [addDivisionData]);
+
+  if (migrate) {
+    return <Migrate setMigrate={setMigrate} />;
   }
-  
+
   return (
     <div className="mt-5">
       <Modal
         open={open}
         onClose={() => {
-          setAddDivision(null)
-          setOpen(false)
+          setAddDivision(null);
+          setOpen(false);
         }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box className="w-full justify-center items-center flex h-full">
           <div className="bg-white px-10 py-5">
-          <div className="flex"><div className="ml-auto cursor-pointer text-red-400" onClick={() => setOpen(false)}>
-            <CircleX /></div></div>
+            <div className="flex">
+              <div
+                className="ml-auto cursor-pointer text-red-400"
+                onClick={() => setOpen(false)}
+              >
+                <CircleX />
+              </div>
+            </div>
 
-            
             {modalLoader ? <ModalLoader /> : <ModalContent />}
           </div>
         </Box>
@@ -186,16 +196,18 @@ const Mappings = ({migrate, setMigrate}) => {
                   <button
                     className="p-2 bg-teal-200 rounded hover:bg-teal-300"
                     onClick={() => {
-                      setAddDivision(item)
-                      setOpen(true)
-                      }
-                    }
+                      setAddDivision(item);
+                      setOpen(true);
+                    }}
                   >
                     <Plus size={16} className="mr-1" />
                   </button>
                 </Tooltip>
                 <Tooltip title={"Migrate Student"}>
-                  <button className="p-2 bg-teal-200 rounded hover:bg-teal-300" onClick={() => setMigrate(true)}>
+                  <button
+                    className="p-2 bg-teal-200 rounded hover:bg-teal-300"
+                    onClick={() => setMigrate(true)}
+                  >
                     <Users size={16} className="mr-1" />
                   </button>
                 </Tooltip>

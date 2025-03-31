@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import AssignProject from "./AssignProject";
 import AssignedProject from "./AssignedProject";
 import SessionPage from "./SessionPage";
+import Project from "../../../pages/Teacher/Project";
 
 function Curriculum() {
   const [selectedTab, setSelectedTab] = useState("assign-project");
@@ -40,10 +41,15 @@ function Curriculum() {
         </div>
         <div className="border border-grey"></div>
         {selectedTab == "assign-project" && <AssignProject />}
-        {selectedTab == "assigned-project" && (
+        {/* {selectedTab == "assigned-project" && (
           <AssignedProject
             setSession={setSession}
             setSessionName={setSessionName}
+          />
+        )} */}
+        {selectedTab == "assigned-project" && (
+          <Project
+            myProject={false}
           />
         )}
       </div>

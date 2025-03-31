@@ -3,20 +3,18 @@ import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { loginApi } from "../../request/APIManager";
 
-
-const Login = ({setUserRole}) => {
+const Login = ({ setUserRole }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await loginApi(email, password, setUserRole)
-    console.log({ response });
+    const response = await loginApi(email, password, setUserRole);
     if (response) {
-      navigate("/")
+      navigate("/");
     }
   };
 
@@ -26,7 +24,9 @@ const Login = ({setUserRole}) => {
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               // type="email"
               className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -36,7 +36,9 @@ const Login = ({setUserRole}) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -53,7 +55,7 @@ const Login = ({setUserRole}) => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-          </div> 
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
@@ -61,7 +63,6 @@ const Login = ({setUserRole}) => {
             Login
           </button>
         </form>
-       
       </div>
     </div>
   );

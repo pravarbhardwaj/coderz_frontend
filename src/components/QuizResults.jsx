@@ -1,8 +1,6 @@
 import React from "react";
 
-const QuizResults = ({quizData}) => {
-  
-
+const QuizResults = ({ quizData }) => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Quiz Results</h2>
@@ -17,7 +15,11 @@ const QuizResults = ({quizData}) => {
                 <span
                   key={idx}
                   className={`px-4 py-2 rounded-lg font-medium text-white text-center ${
-                    isSelected ? (isCorrect ? "bg-green-500" : "bg-red-500") : "bg-gray-300 text-black"
+                    isSelected
+                      ? isCorrect
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                      : "bg-gray-300 text-black"
                   }`}
                 >
                   {option.value}

@@ -245,7 +245,7 @@ function App() {
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<ClassroomProject />} />
+                  <SideBar element={<Project myProject={false}/>} />
                   <PrivateWrapper />
                 </div>
               }
@@ -296,7 +296,7 @@ function App() {
               }
               path="/"
             /> */}
-            {/* <Route
+            <Route
               element={
                 <div>
                   <PrivateWrapper />
@@ -305,7 +305,7 @@ function App() {
                 </div>
               }
               path="/projectreview"
-            /> */}
+            />
             <Route
             element={
               <div>

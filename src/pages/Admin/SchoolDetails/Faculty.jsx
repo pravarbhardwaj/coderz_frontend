@@ -26,12 +26,12 @@ function Faculty() {
   const [response, setResponse] = useState({});
   const [loader, setLoader] = useState(true);
 
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [contact, setContact] = useState("")
-  const [altContact, setAltContact] = useState("")
-  const [email, setEmail] = useState("")
-  const [IsActive, setIsActive] = useState(true)
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [contact, setContact] = useState("");
+  const [altContact, setAltContact] = useState("");
+  const [email, setEmail] = useState("");
+  const [IsActive, setIsActive] = useState(true);
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const fileInputRef = useRef(null);
@@ -39,19 +39,14 @@ function Faculty() {
   const [gender, setGender] = useState("");
   const [edit, setEdit] = useState();
   const [modalLoader, setModalLoader] = useState(false);
-  const [gdMapping, setGdMapping] = useState({})
-  const [teacherResponse, setTeacherReponse] = useState({})
-
-  useEffect(() => {
-    console.log("Reacherd  ", gdMapping)
-  }, [gdMapping])
+  const [gdMapping, setGdMapping] = useState({});
+  const [teacherResponse, setTeacherReponse] = useState({});
 
   const fetchFacultyData = async () => {
     const response = await getAPI(
       navigation,
       `accounts/admin/teachers/?page=${page}`
     );
-    console.log("RESPONSE = ", response);
     setResponse({ ...response });
     setFaculty([...response.results]);
     setLoader(false);
@@ -61,7 +56,6 @@ function Faculty() {
     fetchFacultyData();
   }, [page]);
 
- 
   const handleUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -69,71 +63,64 @@ function Faculty() {
   };
 
   const handleSubmit = async () => {
-    console.log("Hiiiiiiiiiiiiii")
-  
-  let response = false
-  console.log("edit = ", edit)
-  if (edit) {
-    const payload = {
-      "email": email,
-      "FirstName": firstName,
-      "LastName": lastName,
-      "Gender": gender,
-      "ContactNo":contact,
-      "AdditionalContactNo":altContact,
-      "is_active": IsActive,
-      "grade_division_mapping_update": 
-          gdMapping
-      
-  }
-    response = await putAPI(navigation, `accounts/admin/teachers/${edit}/` , payload)
+    let response = false;
+    if (edit) {
+      const payload = {
+        email: email,
+        FirstName: firstName,
+        LastName: lastName,
+        Gender: gender,
+        ContactNo: contact,
+        AdditionalContactNo: altContact,
+        is_active: IsActive,
+        grade_division_mapping_update: gdMapping,
+      };
+      response = await putAPI(
+        navigation,
+        `accounts/admin/teachers/${edit}/`,
+        payload
+      );
+    } else {
+      const payload = {
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        gender: gender,
+        ContactNo: contact,
+        AdditionalContactNo: altContact,
+        is_active: IsActive,
+        grade_division_mapping: gdMapping,
+      };
+      response = await postAPI(
+        navigation,
+        "accounts/admin/teachers/add/",
+        payload
+      );
+    }
 
-  }
-  else {
-    const payload = {
-      "email": email,
-      "first_name": firstName,
-      "last_name": lastName,
-      "gender": gender,
-      "ContactNo":contact,
-      "AdditionalContactNo":altContact,
-      "is_active": IsActive,
-      "grade_division_mapping": 
-          gdMapping
-      
-  }
-   response = await postAPI(navigation, "accounts/admin/teachers/add/" , payload)
-
-  }
-
-  if (response) {
-    alert(edit ? "Faculty Updated" : "Faculty Created!")
-    handleModalClose()
-  }
-  }
+    if (response) {
+      alert(edit ? "Faculty Updated" : "Faculty Created!");
+      handleModalClose();
+    }
+  };
 
   const validEmail = (email) => {
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return pattern.test(email);
   };
-  
+
   useEffect(() => {
     let allowSubmit = true;
-      console.log("last name? ", lastName)
-      if (!firstName || !lastName || !gender || !contact || !email) {
-        allowSubmit = false;
-      } else if ( contact.length != 10)
-       {
-        allowSubmit = false;
-      } else if (!validEmail(email)) {
-        allowSubmit = false;
-      }
-    
+    if (!firstName || !lastName || !gender || !contact || !email) {
+      allowSubmit = false;
+    } else if (contact.length != 10) {
+      allowSubmit = false;
+    } else if (!validEmail(email)) {
+      allowSubmit = false;
+    }
 
     setSubmit(allowSubmit);
   }, [firstName, lastName, gender, email, contact]);
-
-
 
   const fetchTeacherData = async () => {
     setModalLoader(true);
@@ -143,17 +130,15 @@ function Faculty() {
     );
     setFirstName(response?.FirstName ?? "");
     setLastName(response?.LastName ?? "");
-    setIsActive(response?.IsActive ?? "")
-    setGender(response?.Gender ?? "")
-    setEmail(response?.email ?? "")
-    setContact(response?.ContactNo ?? "")
-    setAltContact(response?.AdditionalContactNo ?? "")
-    
-    setModalLoader(false);
-    console.log("yaa =- ", response?.grade_division_mapping)
-    setGdMapping({...response?.grade_division_mapping});
-    setTeacherReponse({...response});
+    setIsActive(response?.IsActive ?? "");
+    setGender(response?.Gender ?? "");
+    setEmail(response?.email ?? "");
+    setContact(response?.ContactNo ?? "");
+    setAltContact(response?.AdditionalContactNo ?? "");
 
+    setModalLoader(false);
+    setGdMapping({ ...response?.grade_division_mapping });
+    setTeacherReponse({ ...response });
   };
 
   useEffect(() => {
@@ -172,19 +157,18 @@ function Faculty() {
   }
 
   const handleModalClose = () => {
-    setFirstName("")
-    setLastName("")
-    setGender("")
-    setContact("")
-    setAltContact("")
-    setEmail("")
-    setGdMapping({})
-    setIsActive(true)
+    setFirstName("");
+    setLastName("");
+    setGender("");
+    setContact("");
+    setAltContact("");
+    setEmail("");
+    setGdMapping({});
+    setIsActive(true);
     setOpen(false);
-    setTeacherReponse({})
+    setTeacherReponse({});
     setEdit(null);
   };
-  
 
   const ModalLoader = () => {
     return (
@@ -193,136 +177,126 @@ function Faculty() {
       </div>
     );
   };
-  const modalContent = 
-    (
-      <div className="flex gap-6 mt-3">
-        {/* <ProfilePictureUploader /> */}
-        <div>
-          <div className="flex gap-4">
+  const modalContent = (
+    <div className="flex gap-6 mt-3">
+      {/* <ProfilePictureUploader /> */}
+      <div>
+        <div className="flex gap-4">
+          <TextField
+            label="First Name"
+            placeholder="First Name"
+            variant="outlined"
+            className="w-full"
+            required
+            value={firstName}
+            onChange={(value) => setFirstName(value.target.value)}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Last Name"
+            placeholder="Last Name"
+            variant="outlined"
+            className="w-full"
+            required
+            value={lastName}
+            onChange={(value) => setLastName(value.target.value)}
+          />
+        </div>
+
+        <div className="flex gap-4 mt-3">
+          <div>
+            <FormControl>
+              <InputLabel>Gender*</InputLabel>
+              <Select
+                value={gender}
+                label="Gender*"
+                onChange={(value) => {
+                  // setGender(value.target.value);
+                  setGender(value.target.value);
+                }}
+                className="w-40"
+                required
+              >
+                <MenuItem value={"male"}>Male</MenuItem>
+                <MenuItem value={"female"}>Female</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div className="w-full">
             <TextField
-              label="First Name"
-              placeholder="First Name"
+              placeholder="Contact"
+              value={contact}
+              label="Contact"
               variant="outlined"
               className="w-full"
               required
-              value={firstName}
-              onChange={(value) =>
-                setFirstName(value.target.value)
-              }
+              onChange={(value) => setContact(value.target.value)}
             />
+            {contact.length != 10 && (
+              <div className="text-red-500 text-sm">
+                Mobile number should be of 10 digits!
+              </div>
+            )}
+          </div>
+          <TextField
+            label="Alternative Contact"
+            value={altContact}
+            placeholder="Alternative Contact"
+            variant="outlined"
+            className="w-full"
+            onChange={(value) => setAltContact(value.target.value)}
+          />
+        </div>
+        <div className="flex gap-4 mt-3">
+          <div className="w-full">
             <TextField
               id="outlined-basic"
-              label="Last Name"
-              placeholder="Last Name"
+              label="Email"
+              value={email}
               variant="outlined"
               className="w-full"
               required
-              value={lastName}
-              onChange={(value) =>
-                setLastName(value.target.value)
-              }
+              placeholder="Email"
+              type="email"
+              onChange={(value) => setEmail(value.target.value)}
             />
-          </div>
 
-          <div className="flex gap-4 mt-3">
-            <div>
-              <FormControl>
-                <InputLabel>Gender*</InputLabel>
-                <Select
-                  value={gender}
-                  label="Gender*"
-                  onChange={(value) => {
-                    // setGender(value.target.value);
-                   setGender(value.target.value)
-                  }}
-                  className="w-40"
-                  required
-                >
-                  <MenuItem value={"male"}>Male</MenuItem>
-                  <MenuItem value={"female"}>Female</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-            <div className="w-full">
-              <TextField
-                placeholder="Contact"
-                value={contact}
-                label="Contact"
-                variant="outlined"
-                className="w-full"
-                required
-                onChange={(value) =>
-                  setContact(value.target.value)
-                }
-              />
-              {
-                contact.length != 10 && (
-                  <div className="text-red-500 text-sm">
-                    Mobile number should be of 10 digits!
-                  </div>
-                )}
-            </div>
-            <TextField
-              label="Alternative Contact"
-              value={altContact}
-              placeholder="Alternative Contact"
-              variant="outlined"
-              className="w-full"
-              onChange={(value) => setAltContact(value.target.value)}
+            {!validEmail(email) && (
+              <div className="text-red-500 text-sm">
+                Please input valid Email!
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Grades setGdMapping={setGdMapping} userPayload={teacherResponse} />
+
+        <div className="flex">
+          <label className="flex items-center gap-2 text-gray-600">
+            <input
+              type="checkbox"
+              className="accent-gray-500"
+              checked={IsActive}
+              onChange={(event) => setIsActive(event.target.checked)}
             />
-          </div>
-          <div className="flex gap-4 mt-3">
-            <div className="w-full">
-              <TextField
-                id="outlined-basic"
-                label="Email"
-                value={email}
-                variant="outlined"
-                className="w-full"
-                required
-                placeholder="Email"
-                type="email"
-                onChange={(value) => setEmail(value.target.value)}
-              />
-
-              {!validEmail(email) && (
-                <div className="text-red-500 text-sm">
-                  Please input valid Email!
-                </div>
-              )}
-            </div>
-          </div>
-
-          <Grades setGdMapping={setGdMapping} userPayload={teacherResponse}/>
-
-          <div className="flex">
-            <label className="flex items-center gap-2 text-gray-600">
-              <input
-                type="checkbox"
-                className="accent-gray-500"
-                checked={IsActive}
-                onChange={(event) =>
-                  setIsActive(event.target.checked)
-                }
-              />
-              Active
-            </label>
-            <div
-              className={`p-2 border-b-2 rounded-md items-center justify-center mt-2 ml-auto px-5
+            Active
+          </label>
+          <div
+            className={`p-2 border-b-2 rounded-md items-center justify-center mt-2 ml-auto px-5
                 ${
                   submit == true
                     ? "hover:cursor-pointer bg-custom-blue"
                     : "bg-gray-500"
                 }`}
-              onClick={() => submit ? handleSubmit() : null}
-            >
-              <div className="font-bold text-xs ">Submit</div>
-            </div>
+            onClick={() => (submit ? handleSubmit() : null)}
+          >
+            <div className="font-bold text-xs ">Submit</div>
           </div>
         </div>
       </div>
-    );
-  
+    </div>
+  );
+
   return (
     <div>
       <Modal
@@ -342,7 +316,7 @@ function Faculty() {
                 <CircleX />
               </div>
             </div>
-            {modalLoader && <ModalLoader /> }
+            {modalLoader && <ModalLoader />}
             {!modalLoader && modalContent}
           </div>
         </Box>

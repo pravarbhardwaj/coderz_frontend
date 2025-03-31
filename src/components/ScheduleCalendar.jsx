@@ -25,7 +25,7 @@ function CalendarApp() {
         title: "Some",
         start: "2025-01-29 06:30",
         end: "2025-01-29 07:00",
-        description: "some class"
+        description: "some class",
       },
     ],
     plugins: [eventsService],
@@ -34,7 +34,6 @@ function CalendarApp() {
   useEffect(() => {
     // get all events
     const a = eventsService.getAll();
-    console.log("yeah - ", a)
   }, []);
 
   return (
