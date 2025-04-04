@@ -27,11 +27,13 @@ const Mappings = ({ migrate, setMigrate }) => {
   }, []);
 
   const handleSubmit = async () => {
-    setModalLoader(true);
-    if (divisions.includes("")) {
+    console.log("divisions = ", divisions)
+    if (divisions.includes("") || divisions.length == 0) {
       alert("Please fill all divisions input");
       return;
     }
+    setModalLoader(true);
+
     const response = await putAPI(
       navigation,
       `accounts/admin/single-grade-division/${addDivisionData["class"]}/`,
@@ -81,7 +83,7 @@ const Mappings = ({ migrate, setMigrate }) => {
       <div>
         <div className="text-center px-60">
           <div className="font-semibold text-2xl">Add Division</div>
-          <div className="font-semibold">1st</div>
+          <div className="font-semibold">{addDivisionData.grade}</div>
         </div>
         <div className="border-b-2 mt-5" />
         <div className="flex">
@@ -203,14 +205,14 @@ const Mappings = ({ migrate, setMigrate }) => {
                     <Plus size={16} className="mr-1" />
                   </button>
                 </Tooltip>
-                <Tooltip title={"Migrate Student"}>
+                {/* <Tooltip title={"Migrate Student"}>
                   <button
                     className="p-2 bg-teal-200 rounded hover:bg-teal-300"
                     onClick={() => setMigrate(true)}
                   >
                     <Users size={16} className="mr-1" />
                   </button>
-                </Tooltip>
+                </Tooltip> */}
               </td>
             </tr>
           ))}

@@ -363,11 +363,11 @@ function Faculty() {
                       <Edit size={16} className="mr-1" />
                     </button>
                   </Tooltip>
-                  <Tooltip title="Change Password">
+                  {/* <Tooltip title="Change Password">
                     <button className="p-2 bg-custom-blue rounded hover:bg-teal-400">
                       <Lock size={16} className="mr-1" />
                     </button>
-                  </Tooltip>
+                  </Tooltip> */}
                 </td>
               </tr>
             ))}

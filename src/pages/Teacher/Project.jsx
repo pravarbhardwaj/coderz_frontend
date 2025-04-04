@@ -179,7 +179,7 @@ function Project({ myProject }) {
                 className="w-full bg-blue-600 text-white px-2 py-2 rounded-lg hover:bg-blue-700 transition"
                 onClick={() => {
                   setEditProject({ ...project });
-                  setOpenCreate(true);
+                  setModal(true);
                 }}
               >
                 Edit Project
@@ -325,8 +325,8 @@ function Project({ myProject }) {
             <CreateProject
               navigation={navigation}
               getAdminProjects={getAdminProjects}
-              editData={editProject}
-              edit={true}
+              // editData={editProject}
+              edit={false}
             />
           </div>
         </Box>
@@ -526,7 +526,12 @@ function Project({ myProject }) {
                 <CircleX />
               </div>
             </div>
-            <CreateProject navigation={navigation} />
+            <CreateProject
+              navigation={navigation}
+              getAdminProjects={getAdminProjects}
+              editData={editProject}
+              edit={true}
+            />
           </div>
         </Box>
       </Modal>

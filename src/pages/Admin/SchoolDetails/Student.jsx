@@ -544,7 +544,9 @@ function Student() {
             <ClipboardPlus size={14} /> Generate Report
           </div>
         </div> */}
-        <div className="ml-auto flex-row">
+
+        {/* FILTERS */}
+        {/* <div className="ml-auto flex-row">
           <div className="text-sm">Student List</div>
           <Select
             value={dropdown}
@@ -572,7 +574,7 @@ function Student() {
             <MenuItem value={500}>500</MenuItem>
             <MenuItem value={1000}>1000</MenuItem>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-5">
@@ -608,11 +610,11 @@ function Student() {
                       <Edit size={16} className="mr-1" />
                     </button>
                   </Tooltip>
-                  <Tooltip title="Change Password">
+                  {/* <Tooltip title="Change Password">
                     <button className="p-2 bg-custom-blue border-b-2 rounded-md">
                       <Lock size={16} className="mr-1" />
                     </button>
-                  </Tooltip>
+                  </Tooltip> */}
                   {/* <Tooltip title="Report">
                     <button className="p-2 bg-custom-blue border-b-2 rounded-md">
                       <ChartLine size={16} className="mr-1" />

@@ -10,11 +10,11 @@ export default function CreateProject({
   editData = {},
 }) {
   const [formData, setFormData] = useState({
-    title: editData["title"] ?? "",
-    description: editData["description"] ?? "",
+    title: editData ? editData["title"] ?? "" : "",
+    description: editData ? editData["description"] ?? "" : "",
     grade: "",
     division: "",
-    due_date: editData["due_date"] ?? "",
+    due_date: editData ? editData["due_date"] ?? "" :  "",
     thumbnail: null,
   });
 
@@ -34,7 +34,7 @@ export default function CreateProject({
     const list = gradeMapping[formData["grade"]]["divisions"].split(",");
     setDivisionList([...list]);
 
-    if (edit && editData["division_name"] && formData.division == "") {
+    if (edit &&  editData["division_name"] && formData.division == "") {
       setFormData({ ...formData, ["division"]: editData["division_name"] });
     }
   }, [formData]);
@@ -55,6 +55,7 @@ export default function CreateProject({
   };
 
   useEffect(() => {
+    console.log("EDIT == ", edit)
     if (Object.keys(gradeMapping).length == 0 || !edit) {
       return;
     }
