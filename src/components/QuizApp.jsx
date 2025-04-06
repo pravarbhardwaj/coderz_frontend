@@ -1,4 +1,3 @@
-// QuizApp.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -34,6 +33,20 @@ const QuizApp = () => {
         const data = response.data?.data;
         if (data && Array.isArray(data.questions)) {
           setQuestions(data.questions);
+          const durationInSec = parseInt(data.testDuration || 0) * 60;
+
+          const savedStart = localStorage.getItem("quiz-start-time");
+          let elapsed = 0;
+
+          if (savedStart) {
+            elapsed = Math.floor((Date.now() - parseInt(savedStart)) / 1000);
+          } else {
+            localStorage.setItem("quiz-start-time", Date.now().toString());
+          }
+
+          const remaining = durationInSec - elapsed;
+          setTimeLeft(remaining > 0 ? remaining : 0);
+
           setTestInfo({
             testName: data.testName,
             testDuration: parseInt(data.testDuration || 0),
@@ -41,7 +54,6 @@ const QuizApp = () => {
             contentId: id,
             questId: data.questId,
           });
-          setTimeLeft(parseInt(data.testDuration || 0) * 60);
         } else {
           throw new Error("Invalid question format");
         }
@@ -93,6 +105,9 @@ const QuizApp = () => {
   };
 
   const handleSubmit = async () => {
+    clearInterval(timerRef.current);
+    localStorage.removeItem("quiz-start-time");
+
     const payload = {
       userId: localStorage.getItem("user_id"),
       questId: testInfo.questId,
