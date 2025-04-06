@@ -1,3 +1,4 @@
+// @ts-ignore
 import {
   LayoutDashboard,
   HomeIcon,
@@ -42,6 +43,9 @@ import LoginSSO from "./pages/Login/LoginSSO";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import ProjectReview from "./pages/Teacher/ProjectReview/ProjectReview";
 import Project from "./pages/Teacher/Project";
+import Content from "./pages/Content";
+import QuizApp from "./components/QuizApp";
+import QuizResults from "./components/QuizResults";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -50,7 +54,8 @@ function App() {
   const PrivateWrapper = () => {
     const access = localStorage.getItem("access");
     const refresh = localStorage.getItem("refresh");
-    // return access && refresh && role ? <Outlet /> : <Navigate to="/login" />;
+    const user_id = localStorage.getItem("user_id");
+    return access && refresh && role && user_id ? <Outlet /> : <Navigate to="/login" />;
   };
 
   const SideBar = ({ element }) => {
@@ -75,6 +80,8 @@ function App() {
                   text="Personalised Project"
                 /> */}
                 <SidebarItem icon={<Layers size={20} />} text="Projects" />
+                <SidebarItem icon={<Layers size={20} />} text="Content" />
+                
                 {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
                 {/* <SidebarItem
                   icon={<NotebookPen size={20} />}
@@ -173,8 +180,8 @@ function App() {
         <div className="w-full py-5 px-10 overflow-y-auto h-full">
           <div className="flex">
             <div>
-              <div className="font-bold text-xl">SESL-US GLOBAL SCHOOL</div>
-              <div>Welcome Back User</div>
+              {/* <div className="font-bold text-xl">SESL-US GLOBAL SCHOOL</div> */}
+              {/* <div>Welcome Back User</div> */}
             </div>
             {/* <div className="ml-auto"><SearchBar /></div> */}
           </div>
@@ -216,6 +223,36 @@ function App() {
                 </div>
               }
               path="/"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Content />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/content"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <QuizApp />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/quizapp/:id"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <QuizResults />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/quiz-result/:id"
             />
             {/* <Route
               element={

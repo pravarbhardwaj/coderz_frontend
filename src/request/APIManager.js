@@ -128,6 +128,7 @@ export const loginApi = async (username, password, setUserRole) => {
     localStorage.setItem("access", data.access);
     localStorage.setItem("refresh", data.refresh);
     localStorage.setItem("role", data.role);
+    localStorage.setItem("user_id", data.user_id);
     setUserRole(data.role);
     return true;
   } catch (e) {

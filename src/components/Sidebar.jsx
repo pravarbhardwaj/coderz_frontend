@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// @ts-ignore
 const SidebarContext = createContext();
 
 export default function Sidebar({ children }) {
@@ -25,7 +26,6 @@ export default function Sidebar({ children }) {
           <SidebarContext.Provider value={{ expanded }}>
             <ul className="flex-1 px-3">{children}</ul>
           </SidebarContext.Provider>
-          
         </nav>
       </aside>
     </>
@@ -34,28 +34,27 @@ export default function Sidebar({ children }) {
 
 const activeMapper = {
   // Dashboard: "/",
-  "Projects": "/",
+  Projects: "/",
+  Content: "/content",
+
   // Schedule: "/schedule",
   "School Details": "/schooldetails",
   // Curriculum: "/curriculum",
   // "My Projects": "/myprojects",
   "Project Review": "/projectreview",
   // "My Class": "/myclass",
-
-
 };
 
 const handleLogout = (navigate) => {
-    localStorage.clear()
-    navigate('/login')
-}
+  localStorage.clear();
+  navigate("/login");
+};
 
 export function SidebarItem({ icon, text }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { expanded } = useContext(SidebarContext);
 
-  
   return (
     <li
       className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
@@ -65,10 +64,11 @@ export function SidebarItem({ icon, text }) {
       }`}
       onClick={() => {
         if (text == "Logout") {
-            handleLogout(navigate)
-            return
+          handleLogout(navigate);
+          return;
         }
-        navigate(activeMapper[text])}}
+        navigate(activeMapper[text]);
+      }}
     >
       {icon}
       <span
