@@ -10,31 +10,35 @@ const QuizApp = () => {
   const [answers, setAnswers] = useState(
     () => JSON.parse(localStorage.getItem("quiz-answers")) || {}
   );
-  const [testInfo, setTestInfo] = useState({
-    testName: "",
-    testDuration: 0,
-    testCode: "",
-    contentId: "",
-    questId: "",
-  });
+  const [testInfo, setTestInfo] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const timerRef = useRef(null);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const startTimeRef = useRef(Date.now());
 
+
+
+  // Fetch quiz data
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           `https://apiv2.questplus.in/api/get-test-question/?qCId=${id}`
         );
-
-        const data = response.data?.data;
-        if (data && Array.isArray(data.questions)) {
+        const data = res.data?.data;
+        if (data?.questions) {
           setQuestions(data.questions);
-          const durationInSec = parseInt(data.testDuration || 0) * 60;
+          setTestInfo({
+            testName: data.testName,
+            testDuration: parseInt(data.testDuration || 0),
+            testCode: data.testId,
+            contentId: id,
+            questId: data.questId,
+          });
 
+          const durationInSec = parseInt(data.testDuration) * 60;
           const savedStart = localStorage.getItem("quiz-start-time");
           let elapsed = 0;
 
@@ -46,20 +50,12 @@ const QuizApp = () => {
 
           const remaining = durationInSec - elapsed;
           setTimeLeft(remaining > 0 ? remaining : 0);
-
-          setTestInfo({
-            testName: data.testName,
-            testDuration: parseInt(data.testDuration || 0),
-            testCode: data.testId,
-            contentId: id,
-            questId: data.questId,
-          });
         } else {
-          throw new Error("Invalid question format");
+          throw new Error("Invalid response");
         }
       } catch (err) {
-        console.error("Error fetching questions:", err);
-        setError("Failed to load questions.");
+        setError("Failed to load quiz.");
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -72,40 +68,41 @@ const QuizApp = () => {
     localStorage.setItem("quiz-answers", JSON.stringify(answers));
   }, [answers]);
 
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timerRef.current);
-  }, []);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-  };
-
+  // Handle option select
   const handleOptionSelect = (questionId, optionId) => {
+    const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
     setAnswers((prev) => ({
       ...prev,
       [questionId]: {
         attemptedAnswer: optionId,
         visited: 1,
-        timeTaken: Math.floor((Date.now() - startTimeRef.current) / 1000),
+        timeTaken: (prev[questionId]?.timeTaken || 0) + timeSpent,
       },
     }));
+    startTimeRef.current = Date.now(); // Reset timer for next question
+  };
+
+  // Track time when switching question
+  const handleQuestionSwitch = (newIndex) => {
+    const currentQ = questions[currentIndex];
+    const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    if (currentQ) {
+      setAnswers((prev) => ({
+        ...prev,
+        [currentQ.missionQuestionId]: {
+          ...prev[currentQ.missionQuestionId],
+          visited: 1,
+          timeTaken:
+            (prev[currentQ.missionQuestionId]?.timeTaken || 0) + timeSpent,
+        },
+      }));
+    }
+    setCurrentIndex(newIndex);
+    startTimeRef.current = Date.now();
   };
 
   const handleSubmit = async () => {
-    clearInterval(timerRef.current);
+    setShowConfirm(false);
     localStorage.removeItem("quiz-start-time");
 
     const payload = {
@@ -125,37 +122,64 @@ const QuizApp = () => {
     };
 
     try {
-      const response = await axios.post(
+      const res = await axios.post(
         "https://apiv2.questplus.in/api/send-test-attempt/",
         payload
       );
       localStorage.removeItem("quiz-answers");
-      navigate(
-        "/quiz-result/" + response.data.data.latestAttemptOnlineAssignmentId
-      );
+      navigate("/quiz-result/" + res.data.data.latestAttemptOnlineAssignmentId);
     } catch (err) {
-      console.error("Submission failed:", err);
+      console.error(err);
       alert("Failed to submit quiz.");
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-600">{error}</div>;
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   const currentQuestion = questions[currentIndex];
 
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-600">{error}</div>;
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto relative">
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">{testInfo.testName}</h1>
         <div className="text-lg font-mono">⏱ {formatTime(timeLeft)}</div>
       </div>
 
-      <div className="border p-4 rounded-lg shadow">
+      {/* Navigation Grid */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {questions.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => handleQuestionSwitch(i)}
+            className={`w-8 h-8 rounded-full text-sm font-bold text-white ${
+              answers[questions[i].missionQuestionId]?.attemptedAnswer
+                ? "bg-green-500"
+                : i === currentIndex
+                ? "bg-blue-500"
+                : "bg-gray-400"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
+      {/* Question */}
+      <div className="border p-4 rounded-lg shadow mt-6">
         <h2 className="font-semibold mb-2">
           Q{currentIndex + 1}:{" "}
           <span
-            dangerouslySetInnerHTML={{ __html: currentQuestion.questionText }}
+            dangerouslySetInnerHTML={{
+              __html: currentQuestion.questionText,
+            }}
           />
         </h2>
         <ul className="space-y-2">
@@ -184,48 +208,59 @@ const QuizApp = () => {
         </ul>
       </div>
 
+      {/* Buttons */}
       <div className="flex justify-between mt-6">
         <button
           className="bg-gray-300 px-4 py-2 rounded"
           disabled={currentIndex === 0}
-          onClick={() => setCurrentIndex(currentIndex - 1)}
+          onClick={() => handleQuestionSwitch(currentIndex - 1)}
         >
           Back
         </button>
-        {currentIndex < questions.length - 1 ? (
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={() => setCurrentIndex(currentIndex + 1)}
-          >
-            Next
-          </button>
-        ) : (
+        <div className="flex gap-2">
+          {currentIndex < questions.length - 1 && (
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+              onClick={() => handleQuestionSwitch(currentIndex + 1)}
+            >
+              Next
+            </button>
+          )}
           <button
             className="bg-green-600 text-white px-4 py-2 rounded"
-            onClick={handleSubmit}
+            onClick={() => setShowConfirm(true)}
           >
             Submit Quiz
           </button>
-        )}
+        </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {questions.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentIndex(i)}
-            className={`w-8 h-8 rounded-full text-white text-sm font-bold ${
-              answers[questions[i].missionQuestionId]?.attemptedAnswer
-                ? "bg-green-500"
-                : i === currentIndex
-                ? "bg-blue-500"
-                : "bg-gray-400"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
+      {/* Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Submit Quiz?</h2>
+            <p className="mb-6">
+              Are you sure you want to submit the quiz? You won’t be able to
+              change your answers after this.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setShowConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded"
+                onClick={handleSubmit}
+              >
+                Yes, Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

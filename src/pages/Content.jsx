@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
+// import DearFlipModal from "../components/DearFlipModal";
+import PdfFlipbookModal from "../components/PdfFlipbookModal";
 
 const Content = () => {
   const [activeTab, setActiveTab] = useState("pdfs");
   const [data, setData] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -31,11 +34,17 @@ const Content = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      <PdfFlipbookModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        pdfUrl={selectedPdf}
+      />
       <div className="flex space-x-4 border-b border-gray-200 mb-4">
         <button
           onClick={() => {
             setActiveTab("pdfs");
             setSelectedPdf(null);
+            setOpen(false);
             setSelectedQuiz(null);
           }}
           className={classNames(
@@ -52,6 +61,7 @@ const Content = () => {
             setActiveTab("quizzes");
             setSelectedPdf(null);
             setSelectedQuiz(null);
+            setOpen(false);
           }}
           className={classNames(
             "py-2 px-4 text-sm font-medium",
@@ -70,10 +80,15 @@ const Content = () => {
             <div
               key={pdf.qcId}
               className="border p-4 rounded-lg shadow cursor-pointer hover:bg-gray-50"
-              onClick={() => setSelectedPdf(pdf.fileUrl)}
+              onClick={() => {
+                setSelectedPdf(pdf.fileUrl);
+                setOpen(true);
+              }}
             >
               <h3 className="text-lg font-semibold">{pdf.contentName}</h3>
-              <p className="text-sm text-gray-500">{pdf.operationDisplayName}</p>
+              <p className="text-sm text-gray-500">
+                {pdf.operationDisplayName}
+              </p>
             </div>
           ))}
         </div>
@@ -87,22 +102,11 @@ const Content = () => {
               className="border p-4 rounded-lg shadow bg-yellow-50 cursor-pointer hover:bg-yellow-100"
               onClick={() => setSelectedQuiz(quiz)}
             >
-              <h3 className="text-lg font-semibold">{cleanTitle(quiz.contentName)}</h3>
+              <h3 className="text-lg font-semibold">
+                {cleanTitle(quiz.contentName)}
+              </h3>
             </div>
           ))}
-        </div>
-      )}
-
-      {selectedPdf && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Viewing PDF</h2>
-          <div className="aspect-w-16 aspect-h-9">
-            <iframe
-              src={selectedPdf}
-              className="w-full h-[80vh] border rounded"
-              title="PDF Viewer"
-            ></iframe>
-          </div>
         </div>
       )}
 

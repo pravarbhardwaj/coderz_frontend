@@ -130,6 +130,11 @@ export const loginApi = async (username, password, setUserRole) => {
     localStorage.setItem("role", data.role);
     localStorage.setItem("user_id", data.user_id);
     setUserRole(data.role);
+    // if (data.role == "Learner") {
+    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser", 
+    //     {headers: {"Authorization": "Bearer " + data.access}})
+    //     console.log("Some fuckery - ", response)
+    // }
     return true;
   } catch (e) {
     console.log(e);
