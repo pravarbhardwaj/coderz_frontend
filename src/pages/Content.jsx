@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
-// import DearFlipModal from "../components/DearFlipModal";
 import PdfFlipbookModal from "../components/PdfFlipbookModal";
 
 const Content = () => {
