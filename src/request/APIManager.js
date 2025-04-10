@@ -35,14 +35,16 @@ export const getAPI = async (navigation, url) => {
   }
 };
 
-export const postAPI = async (navigation, url, payload, upload=false) => {
+export const postAPI = async (navigation, url, payload, upload = false) => {
   try {
     const headers = {
       "Cache-Control": "no-cache",
       Accept: "application/json",
     };
-    console.log("upload ?? - ", upload)
-    headers["Content-Type"] = upload ? "multipart/form-data" : "application/json"
+    console.log("upload ?? - ", upload);
+    headers["Content-Type"] = upload
+      ? "multipart/form-data"
+      : "application/json";
 
     const response = await api.post(url, payload, { headers: headers });
     if (response.status == 400) {
@@ -54,12 +56,11 @@ export const postAPI = async (navigation, url, payload, upload=false) => {
       handleLogout(navigation);
       return { status: "error" };
     }
-    alert(err.response.data.error)
+    alert(err.response.data.error);
     console.log("Post error - ", err.response.data.error);
 
-    return false
+    return false;
     // console.log("Post error - ", Object.keys(err));
-
   }
 };
 
@@ -85,14 +86,16 @@ export const putAPI = async (navigation, url, payload) => {
   }
 };
 
-export const patchAPI = async (navigation, url, payload, upload=false) => {
+export const patchAPI = async (navigation, url, payload, upload = false) => {
   try {
     const headers = {
       "Cache-Control": "no-cache",
       Accept: "application/json",
     };
 
-    headers["Content-Type"] = upload ? "multipart/form-data" : "application/json"
+    headers["Content-Type"] = upload
+      ? "multipart/form-data"
+      : "application/json";
 
     const response = await api.patch(url, payload, { headers: headers });
     if (response.status == 400) {
@@ -104,12 +107,11 @@ export const patchAPI = async (navigation, url, payload, upload=false) => {
       handleLogout(navigation);
       return { status: "error" };
     }
-    alert(err.response.data.error)
+    alert(err.response.data.error);
     console.log("Patch error - ", err.response.data.error);
 
-    return false
+    return false;
     // console.log("Post error - ", Object.keys(err));
-
   }
 };
 
@@ -131,14 +133,81 @@ export const loginApi = async (username, password, setUserRole) => {
     localStorage.setItem("user_id", data.user_id);
     setUserRole(data.role);
     // if (data.role == "Learner") {
-    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser", 
+    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
     //     {headers: {"Authorization": "Bearer " + data.access}})
     //     console.log("Some fuckery - ", response)
     // }
     return true;
   } catch (e) {
+    if (axios.isAxiosError(e)) {
+      console.log("Axios error:", e.response?.status);
+      console.log("Response data:", e.response?.data);
+    } else {
+      console.log("Non-Axios error:", e);
+    }
+    return false;
+  }
+};
+
+export const redirectLogin = async (creds, setUserRole) => {
+  try {
+    const requestUrl = BASE_URL + "accounts/student-login/";
+    const payload = { username: creds, questRedirect: true };
+    console.log("Payload - ", payload);
+    const response = await axios.post(requestUrl, payload);
+    console.log("response = ", response);
+    if (response.status != 202) {
+      return false;
+    }
+
+    const data = response.data.payload;
+    console.log("data -==- ", data);
+    localStorage.setItem("access", data.token.access);
+    localStorage.setItem("refresh", data.token.refresh);
+    localStorage.setItem("role", data.user_type);
+    localStorage.setItem("user_id", data.cid);
+    localStorage.setItem("username", data.username);
+    setUserRole(data.role);
+
+    // if (data.role == "Learner") {
+    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
+    //     {headers: {"Authorization": "Bearer " + data.access}})
+    //     console.log("Some fuckery - ", response)
+    // }
+    console.log("jackpot");
+    return true;
+  } catch (e) {
     console.log(e);
     return false;
     // return e.data.message
+  }
+};
+
+export const getCurrentUserDetails = async () => {
+  try {
+    const response = await axios.get(
+      "https://apiv2.questplus.in/api/users/getCurrenUserDetails",
+
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status != 200) {
+      return false;
+    }
+
+    console.log("User Details:", response);
+    const data = response.data;
+    localStorage.setItem(
+      "questId",
+      data.lastQuestAccessed ?? data.userQuest[0]["questId"]
+    );
+    return true;
+  } catch (error) {
+    console.error("Error fetching user details:", error);
   }
 };

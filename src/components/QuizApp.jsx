@@ -18,7 +18,21 @@ const QuizApp = () => {
 
   const startTimeRef = useRef(Date.now());
 
+  useEffect(() => {
+    if (timeLeft <= 0) return;
 
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
 
   // Fetch quiz data
   useEffect(() => {
@@ -34,7 +48,7 @@ const QuizApp = () => {
             testName: data.testName,
             testDuration: parseInt(data.testDuration || 0),
             testCode: data.testId,
-            contentId: id,
+            contentId: data.contentId,
             questId: data.questId,
           });
 
@@ -107,11 +121,11 @@ const QuizApp = () => {
 
     const payload = {
       userId: localStorage.getItem("user_id"),
-      questId: testInfo.questId,
+      questId: localStorage.getItem("questId"),
       contentId: testInfo.contentId,
       testCode: testInfo.testCode,
       attemptedDate: new Date().toISOString(),
-      attemptDuration: testInfo.testDuration * 60 - timeLeft,
+      attemptDuration: (testInfo.testDuration || 0) * 60 - timeLeft,
       question: questions.map((q) => ({
         missionQuestionId: q.missionQuestionId,
         visited: answers[q.missionQuestionId]?.visited ? "1" : "0",
@@ -217,6 +231,12 @@ const QuizApp = () => {
         >
           Back
         </button>
+        <button
+          className="bg-green-600 text-white px-4 py-2 rounded"
+          onClick={() => setShowConfirm(true)}
+        >
+          Submit Quiz
+        </button>
         <div className="flex gap-2">
           {currentIndex < questions.length - 1 && (
             <button
@@ -226,12 +246,6 @@ const QuizApp = () => {
               Next
             </button>
           )}
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded"
-            onClick={() => setShowConfirm(true)}
-          >
-            Submit Quiz
-          </button>
         </div>
       </div>
 

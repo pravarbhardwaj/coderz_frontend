@@ -46,6 +46,7 @@ import Project from "./pages/Teacher/Project";
 import Content from "./pages/Content";
 import QuizApp from "./components/QuizApp";
 import QuizResults from "./components/QuizResults";
+import StudentLogin from "./pages/Student/StudentLogin";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -196,6 +197,9 @@ function App() {
       <Routes>
         <Route element={<Login setUserRole={setUserRole} />} path="/login" />
         <Route element={<LoginSSO />} path="/loginsso" />
+      
+        <Route path="/student-login/:id/:key" element={<StudentLogin setUserRole={setUserRole} />} />
+
 
         {!userRole || !["Learner", "Teacher", "Admin"].includes(userRole) ? (
           <Route element={<Login setUserRole={setUserRole} />} path="*" />

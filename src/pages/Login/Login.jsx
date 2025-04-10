@@ -1,20 +1,30 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { loginApi } from "../../request/APIManager";
+import { getCurrentUserDetails, loginApi } from "../../request/APIManager";
 
 const Login = ({ setUserRole }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await loginApi(email, password, setUserRole);
     if (response) {
+      setLoginError(false);
+      const quest = await getCurrentUserDetails();
+      if (!quest) {
+        setLoginError(true);
+
+        return;
+      }
       navigate("/");
+    } else {
+      setLoginError(true);
     }
   };
 
@@ -23,12 +33,16 @@ const Login = ({ setUserRole }) => {
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {loginError && (
+            <div className="text-red-500 text-sm text-center">
+              Invalid email or password.
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
-              // type="email"
               className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
