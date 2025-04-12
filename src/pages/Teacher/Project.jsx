@@ -324,7 +324,7 @@ function Project({ myProject }) {
             </div>
             <CreateProject
               navigation={navigation}
-              getAdminProjects={getAdminProjects}
+              getAdminProjects={localStorage.getItem("role") == "Admin" ? getAdminProjects : getTeacherProjects}
               // editData={editProject}
               edit={false}
             />
@@ -351,7 +351,7 @@ function Project({ myProject }) {
             <QuizForm
               navigation={navigation}
               data={data}
-              getAdminProjects={getAdminProjects}
+              getAdminProjects={localStorage.getItem("role") === "Admin" ? getAdminProjects : getTeacherProjects}
             />
           </div>
         </Box>
@@ -377,7 +377,7 @@ function Project({ myProject }) {
               project={data}
               navigation={navigation}
               setOpenAssets={setOpenAssets}
-              getAdminProjects={getAdminProjects}
+              getAdminProjects={localStorage.getItem("role") === "Admin" ? getAdminProjects : getTeacherProjects}
             />
           </div>
         </Box>
@@ -528,7 +528,7 @@ function Project({ myProject }) {
             </div>
             <CreateProject
               navigation={navigation}
-              getAdminProjects={getAdminProjects}
+              getAdminProjects={localStorage.getItem("role") == "Admin" ? getAdminProjects : getTeacherProjects}
               editData={editProject}
               edit={true}
             />

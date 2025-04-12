@@ -122,15 +122,17 @@ export const loginApi = async (username, password, setUserRole) => {
     console.log("Payload - ", payload);
     const response = await axios.post(requestUrl, payload);
     console.log("response = ", response);
-    if (response.status != 200) {
+    if (response.status != 202) {
       return false;
     }
 
-    const data = response.data;
-    localStorage.setItem("access", data.access);
-    localStorage.setItem("refresh", data.refresh);
-    localStorage.setItem("role", data.role);
-    localStorage.setItem("user_id", data.user_id);
+    const data = response.data.payload;
+    console.log("data == ", data)
+    localStorage.setItem("access", data.token.access);
+    localStorage.setItem("refresh", data.token.refresh);
+    localStorage.setItem("role", data.user_type);
+    localStorage.setItem("user_id", data.cid);
+    localStorage.setItem("username", data.username);
     setUserRole(data.role);
     // if (data.role == "Learner") {
     //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
