@@ -27,6 +27,7 @@ const ProjectReview = () => {
   const [pendingOnly, setPendingOnly] = useState(false);
   const [totalPages, setTotalPages] = useState(1)
   const [pageNumber, setPageNumber] = useState(1)
+  const [prefilled, setPrefilled] = useState(false)
 
   const [searchParams, setSearchParams] = useSearchParams();
   const navigation = useNavigate()
@@ -58,6 +59,7 @@ const ProjectReview = () => {
 
   const handleRowClick = (submission) => {
     setSelectedSubmission(submission);
+    setPrefilled(submission.teacher_evaluation ? true : false)
     setFeedback(submission.teacher_evaluation || '');
     setOpenModal(true);
   };
@@ -169,10 +171,11 @@ const ProjectReview = () => {
             rows={4}
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
+            disabled={prefilled}
           />
           </div>
           <div className="flex justify-end mt-4 gap-2">
-            <Button disabled={feedback ? true : false} variant="contained" color="primary" onClick={handleSubmit}>
+            <Button disabled={prefilled} variant="contained" color="primary" onClick={handleSubmit}>
               Submit
             </Button>
             <Button variant="outlined" onClick={() => setOpenModal(false)}>
