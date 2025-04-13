@@ -1,18 +1,14 @@
 import {
   Box,
-  InputLabel,
-  MenuItem,
+  Button,
   Modal,
-  Select,
   TextField,
 } from "@mui/material";
-import SelectionTab from "../../components/SelectionTab";
 import React, { useEffect, useRef, useState } from "react";
-import { CircleX, Upload } from "lucide-react";
+import { CircleX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getAPI, postAPI } from "../../request/APIManager";
 import SessionPage from "../../pages/Admin/Curriculum/SessionPage";
-import { useDropzone } from "react-dropzone";
 import CreateProject from "../../pages/Admin/CreateProject";
 import CreateSession from "../../pages/Admin/SchoolDetails/CreateSession";
 import AssetUploadForm from "../../components/AssetUploadForm";
@@ -44,6 +40,7 @@ function Project({ myProject }) {
   const [editProject, setEditProject] = useState(null);
   const [openAssets, setOpenAssets] = useState(false);
   const [openQuiz, setOpenQuiz] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState(false);
 
   const handleOpen = (proj) => {
     setOpen(true);
@@ -101,7 +98,16 @@ function Project({ myProject }) {
     fetchCardData();
     handleClose();
   };
-
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+  };
   const ProjectCard = ({ project }) => {
     return (
       <div className="bg-white shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition">
@@ -133,24 +139,6 @@ function Project({ myProject }) {
             </div>
           )}
         </div>
-        {/* Project Details */}
-        {/* <p className="text-gray-600 text-sm">Module: <span className="font-medium">{project.module}</span></p> */}
-        {/* <p className="text-gray-600 text-sm">Grade: <span className="font-medium">{project.grade}</span></p> */}
-        {/* <p className="text-gray-600 text-sm">Tool: <span className="font-medium">{project.tool}</span></p> */}
-        {/* <p className="text-gray-600 text-sm">Type: <span className="font-medium">{project.type}</span></p> */}
-
-        {/* Session Details */}
-        {/* <div className="mt-3 flex items-center space-x-2 text-sm">
-          <p className="text-gray-700">Session Completed:</p>
-          <span className={`w-3 h-3 rounded-full ${project.sessionCompleted ? "bg-green-500" : "bg-gray-400"}`}></span>
-          <span>{project.sessionCompleted ? "1/1" : "0/1"}</span>
-        </div> */}
-
-        {/* <div className="flex items-center space-x-2 text-sm">
-          <p className="text-gray-700">Session Shared:</p>
-          <span className="w-3 h-3 rounded-full bg-gray-400"></span>
-          <span>0/1</span>
-        </div> */}
 
         <p className="text-gray-700 text-sm mt-2">
           Description:{" "}
@@ -173,6 +161,19 @@ function Project({ myProject }) {
           >
             {role == "Learner" ? "View" : "Practice"}
           </button>
+
+          {role === "Learner" &&
+            project?.project_submission?.teacher_evaluation && (
+              <button
+                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                onClick={() => {
+                  setData({ ...project });
+                  setFeedbackModal(true);
+                }}
+              >
+                View Feedback
+              </button>
+            )}
           {role != "Learner" && (
             <>
               <button
@@ -305,6 +306,27 @@ function Project({ myProject }) {
 
   return (
     <div>
+      <Modal open={feedbackModal} onClose={() => setFeedbackModal(false)}>
+        <Box sx={style}>
+          <h2 className="text-lg font-semibold mb-4">Submission Details</h2>
+          <div className="mt-10">
+            <TextField
+              label="Feedback"
+              multiline
+              required
+              fullWidth
+              rows={4}
+              value={data?.project_submission?.teacher_evaluation}
+              disabled={true}
+            />
+          </div>
+          <div className="flex justify-end mt-4 gap-2">
+            <Button variant="outlined" onClick={() => setFeedbackModal(false)}>
+              Close
+            </Button>
+          </div>
+        </Box>
+      </Modal>
       <Modal
         open={openCreate}
         onClose={() => setOpenCreate(false)}
@@ -324,7 +346,11 @@ function Project({ myProject }) {
             </div>
             <CreateProject
               navigation={navigation}
-              getAdminProjects={localStorage.getItem("role") == "Admin" ? getAdminProjects : getTeacherProjects}
+              getAdminProjects={
+                localStorage.getItem("role") == "Admin"
+                  ? getAdminProjects
+                  : getTeacherProjects
+              }
               // editData={editProject}
               edit={false}
             />
@@ -351,7 +377,11 @@ function Project({ myProject }) {
             <QuizForm
               navigation={navigation}
               data={data}
-              getAdminProjects={localStorage.getItem("role") === "Admin" ? getAdminProjects : getTeacherProjects}
+              getAdminProjects={
+                localStorage.getItem("role") === "Admin"
+                  ? getAdminProjects
+                  : getTeacherProjects
+              }
             />
           </div>
         </Box>
@@ -377,7 +407,11 @@ function Project({ myProject }) {
               project={data}
               navigation={navigation}
               setOpenAssets={setOpenAssets}
-              getAdminProjects={localStorage.getItem("role") === "Admin" ? getAdminProjects : getTeacherProjects}
+              getAdminProjects={
+                localStorage.getItem("role") === "Admin"
+                  ? getAdminProjects
+                  : getTeacherProjects
+              }
             />
           </div>
         </Box>
@@ -433,17 +467,6 @@ function Project({ myProject }) {
                 <div>{project.due_date}</div>
               </div>
             </div>
-
-            {/* {practice && (
-              <div className="mt-4">
-                <TextField
-                  id="outlined-basic"
-                  label="Project Name*"
-                  variant="outlined"
-                  className="w-full"
-                />
-              </div>
-            )} */}
             <div>
               <form className="flex flex-col items-center space-y-4 p-6 bg-white rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold mb-4">Upload a File</h2>
@@ -528,7 +551,11 @@ function Project({ myProject }) {
             </div>
             <CreateProject
               navigation={navigation}
-              getAdminProjects={localStorage.getItem("role") == "Admin" ? getAdminProjects : getTeacherProjects}
+              getAdminProjects={
+                localStorage.getItem("role") == "Admin"
+                  ? getAdminProjects
+                  : getTeacherProjects
+              }
               editData={editProject}
               edit={true}
             />

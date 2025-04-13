@@ -12,9 +12,8 @@ export default function CreateProject({
   const [formData, setFormData] = useState({
     title: editData ? editData["title"] ?? "" : "",
     description: editData ? editData["description"] ?? "" : "",
-    grade: "",
-    division: "",
-    due_date: editData ? editData["due_date"] ?? "" :  "",
+    group: editData ? editData["groupId"] : "",
+    due_date: editData ? editData["due_date"] ?? "" : "",
     thumbnail: null,
   });
 
@@ -22,45 +21,20 @@ export default function CreateProject({
   const [assets, setAssets] = useState([]);
   const [quiz, setQuiz] = useState([]);
   const [sessions, setSessions] = useState([]);
-  //   const [grade, setGrade] = useState("");
-  const [gradeMapping, setGradeMapping] = useState({});
-  const [divisionList, setDivisionList] = useState([]);
+  const [groupMapping, setGroupMapping] = useState([]);
 
   useEffect(() => {
-    if (!formData["grade"]) {
-      return;
-    }
-
-    const list = gradeMapping[formData["grade"]]["divisions"].split(",");
-    setDivisionList([...list]);
-
-    if (edit &&  editData["division_name"] && formData.division == "") {
-      setFormData({ ...formData, ["division"]: editData["division_name"] });
-    }
-  }, [formData]);
-
-  useEffect(() => {
-    fetchAllGrades();
+    fetchAllGroups();
   }, []);
 
-  const fetchAllGrades = async () => {
+  const fetchAllGroups = async () => {
     const response = await getAPI(
       navigation,
       "/accounts/admin/grade-division-mapping/"
     );
 
-    const gs = {};
-    response.forEach((item) => (gs[item.grade] = item));
-    setGradeMapping({ ...gs });
+    setGroupMapping([...response.group_names]);
   };
-
-  useEffect(() => {
-    console.log("EDIT == ", edit)
-    if (Object.keys(gradeMapping).length == 0 || !edit) {
-      return;
-    }
-    setFormData({ ...formData, ["grade"]: editData["grade_name"] });
-  }, [gradeMapping]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -202,42 +176,25 @@ export default function CreateProject({
         />
         <div>
           <FormControl>
-            <InputLabel>Grade*</InputLabel>
+            <InputLabel>Group*</InputLabel>
             <Select
-              value={formData["grade"]}
-              label="Grade*"
+              value={formData["group"]}
+              label="Group*"
               onChange={(value) => {
-                setFormData({ ...formData, ["grade"]: value.target.value });
+                setFormData({ ...formData, ["group"]: value.target.value });
               }}
-              className="w-40"
+              className="w-full"
               required
             >
-              {Object.keys(gradeMapping).map((item) => (
-                <MenuItem value={item}>{item}</MenuItem>
+              {groupMapping.map((item) => (
+                <MenuItem value={item.GroupId}>
+                  {item.LID__LocationName} - {item.GID__GroupName}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </div>
-        <div>
-          <FormControl>
-            <InputLabel>Division*</InputLabel>
-            <Select
-              disabled={formData["grade"] ? false : true}
-              value={formData["division"]}
-              label="Division*"
-              onChange={(value) => {
-                // setDivision(value.target.value);
-                setFormData({ ...formData, ["division"]: value.target.value });
-              }}
-              className="w-40"
-              required
-            >
-              {divisionList.map((item) => (
-                <MenuItem value={item}>{item}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
+
         <div>
           Due Date:
           <input
