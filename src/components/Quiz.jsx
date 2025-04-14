@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { postAPI } from "../request/APIManager";
 
-const Quiz = ({ quizData }) => {
+const Quiz = ({ quizData, getStudentProjects, setSubmitedQuiz }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [answer, setAnswers] = useState("");
@@ -43,11 +44,30 @@ const Quiz = ({ quizData }) => {
     if (currentQuestionIndex < quizData.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      alert("Quiz Completed!");
-
-      if (localStorage.getItem("role") != "Learner") {
+      // Only needed for learners
+      if (localStorage.getItem("role") !== "Learner") {
+        // Submit the payload to backend if needed
+        // await submitQuiz(payload);
         return;
       }
+      // Create submission payload
+      const submissions = Object.entries(selectedAnswers).map(
+        ([quizId, selectedOptions]) => ({
+          quiz_id: Number(quizId),
+          selected_options: selectedOptions.map((opt) => Number(opt)),
+        })
+      );
+
+      const payload = { submissions };
+
+      const response = await postAPI(
+        navigator,
+        "/projects/submit-reflective-quiz/",
+        payload
+      );
+      setSubmitedQuiz([...response.feedback]);
+      getStudentProjects();
+      alert("Quiz Completed!");
     }
   };
 

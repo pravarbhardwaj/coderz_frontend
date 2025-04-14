@@ -15,6 +15,7 @@ import {
 import Asset from "../../../components/Asset";
 import QuizResults from "../../../components/QuizResults";
 import CreateSession from "../SchoolDetails/CreateSession";
+import SubmittedQuizAnswers from "../../../components/SubmittedQuizAnswers";
 
 const PPT = ({ data }) => {
   return (
@@ -35,9 +36,13 @@ const Overview = ({ data }) => {
   );
 };
 
-function SessionPage({ setSession, data, navigation, projectId }) {
+function SessionPage({ setSession, data, navigation, projectId, getStudentProjects }) {
   const [selectedTab, setSelectedTab] = useState("Overview");
   const tabs = ["Overview", "Session PPT"];
+  const [submittedQuiz, setSubmittedQuiz] = useState(data?.submitted_quizzes ?? [])
+
+  useEffect(() => {
+  }, [submittedQuiz])
   if (data.quizzes.length > 0) {
     tabs.push("Reflectives");
   }
@@ -150,10 +155,12 @@ function SessionPage({ setSession, data, navigation, projectId }) {
       {selectedTab === "Session PPT" && <PPT data={selectedSession} />}
       {selectedTab === "Overview" && <Overview data={selectedSession} />}
       {selectedTab === "Reflectives" &&
-        (!data.submitted_quizzes || data.submitted_quizzes.length == 0 ? (
-          <Quiz quizData={data.quizzes} />
+        ( submittedQuiz.length != 0 && localStorage.getItem("role") === "Learner" ? (
+          <SubmittedQuizAnswers submittedQuizzes={submittedQuiz}  />
+
         ) : (
-          <QuizResults quizData={data.submitted_quizzes} />
+          <Quiz quizData={data.quizzes} getStudentProjects={getStudentProjects} setSubmitedQuiz={setSubmittedQuiz}/>
+
         ))}
 
       {selectedTab === "Assets" && <Asset assets={data.assets} />}

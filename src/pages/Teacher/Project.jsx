@@ -573,6 +573,7 @@ function Project({ myProject }) {
           data={data}
           navigation={navigation}
           projectId={data.id}
+          getStudentProjects={getStudentProjects}
         />
       )}
     </div>

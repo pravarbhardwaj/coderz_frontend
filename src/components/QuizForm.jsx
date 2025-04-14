@@ -69,7 +69,7 @@ const QuizForm = ({ navigation, data, getAdminProjects }) => {
     try {
       const response = await postAPI(
         navigation,
-        `/projects/classroom-projects/${data.id}/quizzes/`,
+        `/projects/reflective-quiz/${data.id}/`,
         payload
       );
       alert("Quiz submitted successfully!");
