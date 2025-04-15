@@ -15,6 +15,7 @@ const QuizApp = () => {
   const [error, setError] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loader, setLoader] = useState(false)
 
   const startTimeRef = useRef(Date.now());
 
@@ -42,6 +43,7 @@ const QuizApp = () => {
           `https://apiv2.questplus.in/api/get-test-question/?qCId=${id}`
         );
         const data = res.data?.data;
+        console.log("Hiiii - ", data)
         if (data?.questions) {
           setQuestions(data.questions);
           setTestInfo({
@@ -116,12 +118,13 @@ const QuizApp = () => {
   };
 
   const handleSubmit = async () => {
+    setLoader(true)
     setShowConfirm(false);
     localStorage.removeItem("quiz-start-time");
 
     const payload = {
       userId: localStorage.getItem("user_id"),
-      questId: localStorage.getItem("questId"),
+      questId: testInfo.questId,
       contentId: testInfo.contentId,
       testCode: testInfo.testCode,
       attemptedDate: new Date().toISOString(),
@@ -136,6 +139,7 @@ const QuizApp = () => {
     };
 
     try {
+    
       const res = await axios.post(
         "https://apiv2.questplus.in/api/send-test-attempt/",
         payload
@@ -143,6 +147,7 @@ const QuizApp = () => {
       localStorage.removeItem("quiz-answers");
       navigate("/quiz-result/" + res.data.data.latestAttemptOnlineAssignmentId);
     } catch (err) {
+      setLoader(false)
       console.error(err);
       alert("Failed to submit quiz.");
     }
@@ -157,6 +162,8 @@ const QuizApp = () => {
   const currentQuestion = questions[currentIndex];
 
   if (loading) return <div className="p-4">Loading...</div>;
+  if (loader) return <div className="p-4">Submitting Quiz...</div>;
+
   if (error) return <div className="p-4 text-red-600">{error}</div>;
 
   return (

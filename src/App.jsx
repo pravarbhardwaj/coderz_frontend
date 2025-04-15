@@ -179,10 +179,10 @@ function App() {
           </Sidebar>
         </div>
         <div className="w-full py-5 px-10 overflow-y-auto h-full">
-          <div className="flex">
+          <div className="flex mb-5">
             <div>
-              {/* <div className="font-bold text-xl">SESL-US GLOBAL SCHOOL</div> */}
-              {/* <div>Welcome Back User</div> */}
+              <div className="font-bold text-3xl">{role} Portal</div>
+              <div>Welcome Back <span className="font-semibold">{localStorage.getItem("name")}</span></div>
             </div>
             {/* <div className="ml-auto"><SearchBar /></div> */}
           </div>

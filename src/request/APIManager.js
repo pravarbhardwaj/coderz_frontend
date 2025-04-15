@@ -119,9 +119,7 @@ export const loginApi = async (username, password, setUserRole) => {
   try {
     const requestUrl = BASE_URL + "accounts/login/";
     const payload = { UserName: username, password: password };
-    console.log("Payload - ", payload);
     const response = await axios.post(requestUrl, payload);
-    console.log("response = ", response);
     if (response.status != 202) {
       return false;
     }
@@ -133,6 +131,8 @@ export const loginApi = async (username, password, setUserRole) => {
     localStorage.setItem("role", data.user_type);
     localStorage.setItem("user_id", data.cid);
     localStorage.setItem("username", data.username);
+    localStorage.setItem("name", data.name);
+
     setUserRole(data.role);
     // if (data.role == "Learner") {
     //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
