@@ -43,7 +43,6 @@ const QuizApp = () => {
           `https://apiv2.questplus.in/api/get-test-question/?qCId=${id}`
         );
         const data = res.data?.data;
-        console.log("Hiiii - ", data)
         if (data?.questions) {
           setQuestions(data.questions);
           setTestInfo({

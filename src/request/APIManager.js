@@ -5,7 +5,6 @@ import { Form } from "react-router-dom";
 export const BASE_URL = "https://coding1.questplus.in/api/v1/";
 
 const handleLogout = (navigation) => {
-  console.log("Logout!");
   localStorage.clear();
   navigation("/login", { replace: true });
 };
@@ -19,7 +18,6 @@ export const getAPI = async (navigation, url) => {
       "ngrok-skip-browser-warning": true,
     };
 
-    console.log("URL - ", url);
 
     const response = await api.get(url, { headers: headers });
     if (response.status == 400) {
@@ -41,7 +39,6 @@ export const postAPI = async (navigation, url, payload, upload = false) => {
       "Cache-Control": "no-cache",
       Accept: "application/json",
     };
-    console.log("upload ?? - ", upload);
     headers["Content-Type"] = upload
       ? "multipart/form-data"
       : "application/json";
@@ -111,7 +108,6 @@ export const patchAPI = async (navigation, url, payload, upload = false) => {
     console.log("Patch error - ", err.response.data.error);
 
     return false;
-    // console.log("Post error - ", Object.keys(err));
   }
 };
 
@@ -125,7 +121,6 @@ export const loginApi = async (username, password, setUserRole) => {
     }
 
     const data = response.data.payload;
-    console.log("data == ", data)
     localStorage.setItem("access", data.token.access);
     localStorage.setItem("refresh", data.token.refresh);
     localStorage.setItem("role", data.user_type);
@@ -133,12 +128,8 @@ export const loginApi = async (username, password, setUserRole) => {
     localStorage.setItem("username", data.username);
     localStorage.setItem("name", data.name);
 
-    setUserRole(data.role);
-    // if (data.role == "Learner") {
-    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
-    //     {headers: {"Authorization": "Bearer " + data.access}})
-    //     console.log("Some fuckery - ", response)
-    // }
+    setUserRole(data.user_type);
+   
     return true;
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -155,28 +146,18 @@ export const redirectLogin = async (creds, setUserRole) => {
   try {
     const requestUrl = BASE_URL + "accounts/student-login/";
     const payload = { username: creds, questRedirect: true };
-    console.log("Payload - ", payload);
     const response = await axios.post(requestUrl, payload);
-    console.log("response = ", response);
     if (response.status != 202) {
       return false;
     }
 
     const data = response.data.payload;
-    console.log("data -==- ", data);
     localStorage.setItem("access", data.token.access);
     localStorage.setItem("refresh", data.token.refresh);
     localStorage.setItem("role", data.user_type);
     localStorage.setItem("user_id", data.cid);
     localStorage.setItem("username", data.username);
     setUserRole(data.role);
-
-    // if (data.role == "Learner") {
-    //   const response = await axios.get("https://api.questplus.in/QuestUser/GetCurrentUser",
-    //     {headers: {"Authorization": "Bearer " + data.access}})
-    //     console.log("Some fuckery - ", response)
-    // }
-    console.log("jackpot");
     return true;
   } catch (e) {
     console.log(e);
@@ -201,8 +182,6 @@ export const getCurrentUserDetails = async () => {
     if (response.status != 200) {
       return false;
     }
-
-    console.log("User Details:", response);
     const data = response.data;
     localStorage.setItem(
       "questId",

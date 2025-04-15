@@ -30,6 +30,7 @@ import {
   BrowserRouter,
   Navigate,
   Outlet,
+  useLocation,
 } from "react-router-dom";
 import * as React from "react";
 import ClassroomProject from "./pages/Student/ClassroomProject/ClassroomProject";
@@ -53,25 +54,27 @@ function App() {
   const [userRole, setUserRole] = React.useState(localStorage.getItem("role"));
 
   React.useEffect(() => {
-    fetch('/version.json')
-      .then(res => {
-        if (!res.ok) throw new Error('version.json not found');
+    fetch("/version.json")
+      .then((res) => {
+        if (!res.ok) throw new Error("version.json not found");
         return res.json();
       })
       .then(({ version }) => {
-        const currentVersion = localStorage.getItem('app-version');
+        const currentVersion = localStorage.getItem("app-version");
         if (currentVersion && currentVersion !== version) {
           localStorage.clear();
           sessionStorage.clear();
-          caches.keys().then(names => names.forEach(name => caches.delete(name)));
-          localStorage.setItem('app-version', version);
+          caches
+            .keys()
+            .then((names) => names.forEach((name) => caches.delete(name)));
+          localStorage.setItem("app-version", version);
           window.location.reload();
         } else {
-          localStorage.setItem('app-version', version);
+          localStorage.setItem("app-version", version);
         }
       })
-      .catch(err => {
-        console.error('Error fetching version:', err);
+      .catch((err) => {
+        console.error("Error fetching version:", err);
       });
   }, []);
 
@@ -79,19 +82,21 @@ function App() {
     const access = localStorage.getItem("access");
     const refresh = localStorage.getItem("refresh");
     const user_id = localStorage.getItem("user_id");
-    return access && refresh && role && user_id ? <Outlet /> : <Navigate to="/login" />;
+    return access && refresh && role && user_id ? (
+      <Outlet />
+    ) : (
+      <Navigate to="/login" />
+    );
   };
 
   const SideBar = ({ element }) => {
-    const role = localStorage.getItem("role");
-
     let sideBarItems = [];
 
     return (
       <div className="flex">
         <div className="sticky top-0 h-full">
           <Sidebar>
-            {role == "Learner" && (
+            {userRole == "Learner" && (
               <>
                 {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
                 {/* <SidebarItem icon={<Book size={20} />} text="Digital Book" /> */}
@@ -105,7 +110,7 @@ function App() {
                 /> */}
                 <SidebarItem icon={<Layers size={20} />} text="Projects" />
                 <SidebarItem icon={<Layers size={20} />} text="Content" />
-                
+
                 {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
                 {/* <SidebarItem
                   icon={<NotebookPen size={20} />}
@@ -131,12 +136,9 @@ function App() {
               </>
             )}
 
-            {role == "Teacher" && (
+            {userRole == "Teacher" && (
               <>
-               <SidebarItem
-                  icon={<Shapes size={20} />}
-                  text="Projects"
-                />
+                <SidebarItem icon={<Shapes size={20} />} text="Projects" />
                 {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
                 <SidebarItem
                   icon={<ListCheck size={20} />}
@@ -159,10 +161,9 @@ function App() {
                   </div>
                 </div>
               </>
-            
             )}
 
-            {role == "Admin" && (
+            {userRole == "Admin" && (
               <>
                 <SidebarItem icon={<Layers size={20} />} text="Projects" />
 
@@ -198,14 +199,19 @@ function App() {
                   </div>
                 </div>
               </>
-             )} 
+            )}
           </Sidebar>
         </div>
         <div className="w-full py-5 px-10 overflow-y-auto h-full">
           <div className="flex mb-5">
             <div>
-              <div className="font-bold text-3xl">{role} Portal</div>
-              <div>Welcome Back <span className="font-semibold">{localStorage.getItem("name")}</span></div>
+              <div className="font-bold text-3xl">{userRole} Portal</div>
+              <div>
+                Welcome Back{" "}
+                <span className="font-semibold">
+                  {localStorage.getItem("name")}
+                </span>
+              </div>
             </div>
             {/* <div className="ml-auto"><SearchBar /></div> */}
           </div>
@@ -220,9 +226,11 @@ function App() {
       <Routes>
         <Route element={<Login setUserRole={setUserRole} />} path="/login" />
         <Route element={<LoginSSO />} path="/loginsso" />
-      
-        <Route path="/student-login/:id/:key" element={<StudentLogin setUserRole={setUserRole} />} />
 
+        <Route
+          path="/student-login/:id/:key"
+          element={<StudentLogin setUserRole={setUserRole} />}
+        />
 
         {!userRole || !["Learner", "Teacher", "Admin"].includes(userRole) ? (
           <Route element={<Login setUserRole={setUserRole} />} path="*" />
@@ -309,7 +317,7 @@ function App() {
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<Project myProject={false}/>} />
+                  <SideBar element={<Project myProject={false} />} />
                   <PrivateWrapper />
                 </div>
               }
@@ -371,15 +379,15 @@ function App() {
               path="/projectreview"
             />
             <Route
-            element={
-              <div>
-                <PrivateWrapper />
-                <SideBar element={<Project />} />
-                <PrivateWrapper />
-              </div>
-            }
-            path="/"
-          />
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Project />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/"
+            />
           </>
         )}
         <Route path="*" element={<Navigate to="/login" replace />} />
