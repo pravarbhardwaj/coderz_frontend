@@ -52,6 +52,29 @@ function App() {
   const role = localStorage.getItem("role");
   const [userRole, setUserRole] = React.useState(localStorage.getItem("role"));
 
+  React.useEffect(() => {
+    fetch('/version.json')
+      .then(res => {
+        if (!res.ok) throw new Error('version.json not found');
+        return res.json();
+      })
+      .then(({ version }) => {
+        const currentVersion = localStorage.getItem('app-version');
+        if (currentVersion && currentVersion !== version) {
+          localStorage.clear();
+          sessionStorage.clear();
+          caches.keys().then(names => names.forEach(name => caches.delete(name)));
+          localStorage.setItem('app-version', version);
+          window.location.reload();
+        } else {
+          localStorage.setItem('app-version', version);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching version:', err);
+      });
+  }, []);
+
   const PrivateWrapper = () => {
     const access = localStorage.getItem("access");
     const refresh = localStorage.getItem("refresh");
