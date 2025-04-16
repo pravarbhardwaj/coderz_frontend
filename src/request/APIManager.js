@@ -157,7 +157,7 @@ export const redirectLogin = async (creds, setUserRole) => {
     localStorage.setItem("role", data.user_type);
     localStorage.setItem("user_id", data.cid);
     localStorage.setItem("username", data.username);
-    setUserRole(data.role);
+    setUserRole(data.user_type);
     return true;
   } catch (e) {
     console.log(e);
