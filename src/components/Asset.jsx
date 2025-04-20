@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { Document, Page } from "react-pdf";
+import { pdfjs } from "react-pdf";
 
-const AssetCard = ({ asset, onImageClick }) => {
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+const AssetCard = ({ asset, onImageClick, onPdfClick }) => {
   return (
     <div className="border rounded-lg p-4 shadow-md bg-gray-50 w-64">
       {asset.file_type === "image" ? (
@@ -18,14 +22,12 @@ const AssetCard = ({ asset, onImageClick }) => {
             className="w-20 h-20"
           />
           <p className="mt-2 font-semibold">Lesson Plan</p>
-          <a
-            href={asset.file}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 border px-4 py-2 rounded-md text-blue-600 border-blue-600 flex items-center gap-1"
+          <button
+            onClick={() => onPdfClick(asset.file)}
+            className="mt-2 border px-4 py-2 rounded-md text-blue-600 border-blue-600"
           >
             View
-          </a>
+          </button>
         </div>
       ) : null}
     </div>
@@ -34,22 +36,53 @@ const AssetCard = ({ asset, onImageClick }) => {
 
 const AssetGallery = ({ assets }) => {
   const [expandedImage, setExpandedImage] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  const closeModal = () => {
+    setExpandedImage(null);
+    setPdfUrl(null);
+  };
 
   return (
     <div>
-      {expandedImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-          <img
-            src={expandedImage}
-            alt="Expanded"
-            className="max-w-full max-h-full"
-          />
-          <button
-            className="absolute top-4 right-4 bg-white p-2 rounded-full shadow-lg"
-            onClick={() => setExpandedImage(null)}
-          >
-            ✖
-          </button>
+      {(expandedImage || pdfUrl) && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
+          <div className="relative bg-white rounded-md max-w-[90vw] max-h-[90vh] overflow-auto shadow-xl p-4">
+            {/* Close Button */}
+            <button
+              className="absolute top-2 right-2 bg-white text-black px-3 py-1 rounded-full shadow-md z-50"
+              onClick={closeModal}
+            >
+              ✖
+            </button>
+
+            {/* Image View */}
+            {expandedImage && (
+              <img
+                src={expandedImage}
+                alt="Expanded"
+                className="max-w-full max-h-[80vh]"
+              />
+            )}
+
+            {/* PDF View */}
+            {pdfUrl && (
+              <Document
+                file={pdfUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+                className="flex flex-col gap-4 items-center"
+              >
+                {Array.from(new Array(numPages), (el, index) => (
+                  <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                ))}
+              </Document>
+            )}
+          </div>
         </div>
       )}
       <div className="flex flex-wrap gap-4">
@@ -58,6 +91,7 @@ const AssetGallery = ({ assets }) => {
             key={asset.id}
             asset={asset}
             onImageClick={setExpandedImage}
+            onPdfClick={setPdfUrl}
           />
         ))}
       </div>
@@ -65,12 +99,10 @@ const AssetGallery = ({ assets }) => {
   );
 };
 
-export default function Asset({assets}) {
-if (assets.length == 0) {
-    return (
-        <p className="text-xl mt-5">No Assets!</p>
-    )
-}
+export default function Asset({ assets }) {
+  if (assets.length === 0) {
+    return <p className="text-xl mt-5">No Assets!</p>;
+  }
 
   return (
     <div className="p-6">

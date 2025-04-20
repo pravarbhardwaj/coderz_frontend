@@ -7,6 +7,7 @@ export default function CreateProject({
   navigation,
   getAdminProjects,
   edit = false,
+  setOpenCreate,
   editData = {},
 }) {
   const [formData, setFormData] = useState({
@@ -62,6 +63,7 @@ export default function CreateProject({
       if (response) {
         alert("Project added successfully!");
         getAdminProjects();
+        setOpenCreate(false)
       } else {
         alert("Failed to add project.");
       }
@@ -175,7 +177,7 @@ export default function CreateProject({
           required
         />
         <div>
-          <FormControl>
+          <FormControl className="w-full">
             <InputLabel>Group*</InputLabel>
             <Select
               value={formData["group"]}

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Loader2 } from 'lucide-react';
+
 
 const QuizApp = () => {
   const { id } = useParams();
@@ -158,15 +160,32 @@ const QuizApp = () => {
     return `${m}:${s}`;
   };
 
+  const SubmittingQuiz = () => {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-indigo-100 to-purple-100 px-4 text-center">
+        <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full space-y-6 animate-fade-in">
+          <Loader2 className="animate-spin text-indigo-600 w-12 h-12 mx-auto" />
+          <h1 className="text-2xl font-semibold text-gray-800">Submitting Your Quiz</h1>
+          <p className="text-gray-600">
+            Please do not reload the page or close the window.
+          </p>
+          <p className="text-gray-600">
+            You will be automatically taken to the results page shortly.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   const currentQuestion = questions[currentIndex];
 
   if (loading) return <div className="p-4">Loading...</div>;
-  if (loader) return <div className="p-4">Submitting Quiz...</div>;
+  if (loader) return <SubmittingQuiz />;
 
   if (error) return <div className="p-4 text-red-600">{error}</div>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto relative">
+    <div className="p-6 w-full mx-auto relative">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">{testInfo.testName}</h1>
@@ -205,7 +224,7 @@ const QuizApp = () => {
         <ul className="space-y-2">
           {currentQuestion.options.map((option) => (
             <li key={option.id}>
-              <label className="flex items-start space-x-2 cursor-pointer">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   name={`question-${currentQuestion.missionQuestionId}`}

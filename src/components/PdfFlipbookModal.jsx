@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import HTMLFlipBook from "react-pageflip";
 
@@ -7,14 +7,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.vers
 
 const PdfFlipbookModal = ({ isOpen, onClose, pdfUrl }) => {
   const [numPages, setNumPages] = useState(null);
+  const [currentPairIndex, setCurrentPairIndex] = useState(0);
+  const flipBookRef = useRef();
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
+    setCurrentPairIndex(0);
   };
 
-  if (!isOpen) return null;
-
-  // Group pages in pairs [0-1], [2-3], ...
   const getPagePairs = () => {
     const pairs = [];
     for (let i = 1; i <= numPages; i += 2) {
@@ -23,10 +23,35 @@ const PdfFlipbookModal = ({ isOpen, onClose, pdfUrl }) => {
     return pairs;
   };
 
+  const handleFlip = (e) => {
+    setCurrentPairIndex(e.data);
+  };
+
+  const goToPrevPage = () => {
+    if (flipBookRef.current && currentPairIndex > 0) {
+      flipBookRef.current.pageFlip().flipPrev();
+    }
+  };
+
+  const goToNextPage = () => {
+    const pairs = getPagePairs();
+    if (flipBookRef.current && currentPairIndex < pairs.length - 1) {
+      flipBookRef.current.pageFlip().flipNext();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const pairs = getPagePairs();
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="relative bg-white p-4 rounded-lg shadow-lg w-[95%] max-h-full overflow-auto">
+      <div className="relative bg-white p-4 rounded-lg shadow-lg w-full max-h-full overflow-auto flex flex-col">
        
+
+        <div className="text-center mb-2 font-semibold text-sm">
+          {pairs.length > 0 ? `${currentPairIndex + 1}/${pairs.length}` : "--"}
+        </div>
 
         <Document
           file={pdfUrl}
@@ -40,32 +65,58 @@ const PdfFlipbookModal = ({ isOpen, onClose, pdfUrl }) => {
               height={550}
               size="stretch"
               minWidth={315}
-              // maxWidth={1000}
               minHeight={400}
-              // maxHeight={1536}
               maxShadowOpacity={0.5}
               showCover={true}
               mobileScrollSupport={true}
               className="flipbook"
+              ref={flipBookRef}
+              onFlip={handleFlip}
             >
-              {getPagePairs().map(([left, right], i) => (
+              {pairs.map(([left, right], i) => (
                 <div key={i} className="bg-white flex justify-between p-2">
-                  <div className="w-1/2">{left <= numPages && <Page pageNumber={left}  />}</div>
-                  <div className="w-1/2">{right <= numPages && <Page pageNumber={right} />}</div>
+                  <div className="w-1/2">
+                    {left <= numPages && <Page pageNumber={left} />}
+                  </div>
+                  <div className="w-1/2">
+                    {right <= numPages && <Page pageNumber={right} />}
+                  </div>
                 </div>
               ))}
             </HTMLFlipBook>
           )}
         </Document>
-        <div className="w-full align-center justify-center">
-        <button
-          className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
-          onClick={onClose}
-        >
-          &times;
-        </button>
+
+        <div className="mt-4 flex justify-center gap-4">
+          <button
+            onClick={goToPrevPage}
+            disabled={currentPairIndex === 0}
+            className={`px-4 py-1 rounded ${
+              currentPairIndex === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white"
+            }`}
+          >
+            Previous
+          </button>
+          <button
+            onClick={onClose}
+            className={`px-4 py-1 rounded bg-red-500 text-white`}
+          >
+            Close
+          </button>
+          <button
+            onClick={goToNextPage}
+            disabled={currentPairIndex === pairs.length - 1}
+            className={`px-4 py-1 rounded ${
+              currentPairIndex === pairs.length - 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white"
+            }`}
+          >
+            Next
+          </button>
         </div>
-        
       </div>
     </div>
   );
