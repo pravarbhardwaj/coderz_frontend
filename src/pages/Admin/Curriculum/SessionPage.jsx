@@ -1,7 +1,7 @@
 import Quiz from "../../../components/Quiz";
 import PPTViewer from "../../../components/PPTViewer";
 import SelectionTab from "../../../components/SelectionTab";
-import { MoveLeft } from "lucide-react";
+import { Loader2, MoveLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { getAPI } from "../../../request/APIManager";
 import {
@@ -54,8 +54,11 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
   const [sessionData, setSessionData] = useState([]);
   const [selectedSession, setSelectedSession] = useState({});
   const [openSession, setOpenSession] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const getSessionData = async () => {
+    try {
+      setLoader(true);
     const response = await getAPI(
       navigation,
       `projects/project-sessions/?project_id=${projectId}`
@@ -65,7 +68,14 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
       setDropdown(response[0].id);
       setSelectedSession(response[0]);
     }
+    setLoader(false);
+
+  }
+  catch (error) {
+    setLoader(false);
+    console.log("Error fetching session data:", error);
   };
+  }
 
   useEffect(() => {
     getSessionData();
@@ -77,6 +87,13 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
     setSelectedSession({ ...item });
   };
 
+  if (loader) {
+    return (  
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin text-blue-600 w-12 h-12" />
+      </div>
+    );
+  }
   if (sessionData.length == 0) {
     return (
       <div>

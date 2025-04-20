@@ -351,6 +351,7 @@ function Project({ myProject }) {
                   ? getAdminProjects
                   : getTeacherProjects
               }
+              setOpenCreate={setOpenCreate}
               // editData={editProject}
               edit={false}
             />
@@ -557,6 +558,7 @@ function Project({ myProject }) {
                   : getTeacherProjects
               }
               editData={editProject}
+              setOpenCreate={setOpenCreate}
               edit={true}
             />
           </div>
