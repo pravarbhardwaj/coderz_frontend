@@ -14,9 +14,10 @@ const Content = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const userId = localStorage.getItem("user_id")
     axios
       .get(
-        "https://apiv2.questplus.in/api/get-content-by-user/?user_id=f5fd054c-e0a6-45d2-bf68-9c435dd47f16"
+        "https://apiv2.questplus.in/api/get-content-by-user/?user_id=" + userId
       )
       .then((res) => {
         setData(res.data.data);
