@@ -3,6 +3,7 @@ import axios from "axios";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
 import PdfFlipbookModal from "../components/PdfFlipbookModal";
+import PdfSwiperModal from "../components/PdfSwiperModal";
 
 const Content = () => {
   const [activeTab, setActiveTab] = useState("pdfs");
@@ -20,7 +21,10 @@ const Content = () => {
         "https://apiv2.questplus.in/api/get-content-by-user/?user_id=" + userId
       )
       .then((res) => {
-        setData(res.data.data);
+        const sortedData = [...res.data.data].sort((a, b) =>
+          a.missionId.localeCompare(b.missionId)
+        );
+        setData(sortedData);
       })
       .catch((err) => {
         console.error("Error fetching content:", err);
@@ -34,7 +38,7 @@ const Content = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <PdfFlipbookModal
+      <PdfSwiperModal
         isOpen={open}
         onClose={() => setOpen(false)}
         pdfUrl={selectedPdf}

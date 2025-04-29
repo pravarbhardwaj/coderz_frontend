@@ -31,6 +31,7 @@
     "react-calendar-timeline": "^0.30.0-beta.3",
     "react-color": "^2.19.3",
     "react-datepicker": "^7.6.0",
+    "react-doc-viewer": "^0.1.14",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
     "react-loader-spinner": "^6.1.6",
@@ -42,6 +43,7 @@
     "react-sketch-canvas": "^6.2.0",
     "recharts": "^2.15.2",
     "screenfull": "^6.0.2",
+    "swiper": "^11.2.6",
     "typescript": "^5.7.3"
   },
   "devDependencies": {
