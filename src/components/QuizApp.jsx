@@ -189,8 +189,23 @@ const QuizApp = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">{testInfo.testName}</h1>
-        <div className="text-lg font-mono">⏱ {formatTime(timeLeft)}</div>
+        <div
+      className={`text-lg font-mono ${
+        timeLeft <= 60 ? "text-red-600 animate-pulse" : ""
+      }`}
+    >
+      ⏱ {formatTime(timeLeft)}
+    </div>
       </div>
+      
+       {currentIndex == questions.length - 1 && 
+       <div className="w-full flex"> <button
+          className="bg-green-600 text-white px-4 py-2 rounded ml-auto"
+          onClick={() => setShowConfirm(true)}
+        >
+          Submit Quiz
+        </button></div>}
+     
 
       {/* Navigation Grid */}
       <div className="mt-4 flex flex-wrap gap-2">
@@ -248,7 +263,7 @@ const QuizApp = () => {
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-center gap-4 mt-6">
         <button
           className="bg-gray-300 px-4 py-2 rounded"
           disabled={currentIndex === 0}
@@ -256,12 +271,7 @@ const QuizApp = () => {
         >
           Back
         </button>
-        <button
-          className="bg-green-600 text-white px-4 py-2 rounded"
-          onClick={() => setShowConfirm(true)}
-        >
-          Submit Quiz
-        </button>
+       
         <div className="flex gap-2">
           {currentIndex < questions.length - 1 && (
             <button

@@ -4,29 +4,19 @@ import { SketchPicker } from "react-color";
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import { Presentation, Slide, Text } from "react-pptx";
 
-const slides = [
-  {
-    id: 1,
-    type: "image",
-    src: "https://w0.peakpx.com/wallpaper/410/412/HD-wallpaper-plain-black-black.jpg",
-    audio: "audio1.mp3",
-  },
-  {
-    id: 2,
-    type: "video",
-    src: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    audio: "audio2.mp3",
-  },
-];
+
+
 
 const PowerPointEmbed = ({ data }) => {
+  const windowHeight = window.innerHeight;
+  const windowWidth = window.innerWidth;
+  const pptUrl = "https://view.officeapps.live.com/op/view.aspx?src=" + data.ppt_file + "&wdHide=1";
   return (
-    <iframe
-      src={"https://view.officeapps.live.com/op/view.aspx?src=" + data.ppt_file}
-      width="100%"
-      height="600px"
-    />
+<iframe src={`https://view.officeapps.live.com/op/embed.aspx?src=${data.ppt_file}&amp;wdAr=1.3333333333333333`} width="100%" height={"600px"} frameborder="0"></iframe>
+
   );
+
+  
 };
 
 const PPTViewer = ({ data }) => {
@@ -76,12 +66,7 @@ const PPTViewer = ({ data }) => {
           )} */}
 
         <PowerPointEmbed data={data} />
-        <audio
-          ref={audioRef}
-          src={slides[currentSlide].audio}
-          autoPlay
-          hidden
-        ></audio>
+       
         {isDrawing && (
           <ReactSketchCanvas
             canvasColor="rgba(0,0,0,0)"
@@ -105,26 +90,7 @@ const PPTViewer = ({ data }) => {
           <button onClick={() => document.getElementById("slideSelector").showModal()} className="bg-gray-400 text-white px-4 py-2 rounded-md">Select Slide</button>
         </div>
    */}
-      <dialog id="slideSelector" className="p-6 bg-white rounded-md shadow-lg">
-        <h2 className="text-lg font-semibold">Select Slide</h2>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              onClick={() => goToSlide(index)}
-              className="border p-2 rounded-md"
-            >
-              Slide {slide.id}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={() => document.getElementById("slideSelector").close()}
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md"
-        >
-          Close
-        </button>
-      </dialog>
+      
 
       <div className="mt-4 flex gap-4">
         <button
