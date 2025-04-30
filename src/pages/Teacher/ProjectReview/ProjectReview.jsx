@@ -53,8 +53,6 @@ const ProjectReview = () => {
       setSubmissions(res.results);
       setTotalPages(res.total_pages);
 
-      setPageNumber(res.total_pages == 0 ? 0 : 1);
-
       setCount(res.count);
     } catch (err) {
       console.error(err);
