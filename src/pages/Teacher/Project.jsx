@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Modal,
+  Select,
   TextField,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
@@ -41,6 +45,12 @@ function Project({ myProject }) {
   const [openAssets, setOpenAssets] = useState(false);
   const [openQuiz, setOpenQuiz] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState(false);
+  const [dropdown, setDropdown] = useState("All");
+  const [groups, setGroups] = useState([]);
+
+  const handleChange = (value) => {
+    setDropdown(value.target.value);
+  };
 
   const handleOpen = (proj) => {
     setOpen(true);
@@ -214,7 +224,7 @@ function Project({ myProject }) {
               </button>
             </>
           )}
-          {role == "Learner" && !project.is_completed && (
+          {role == "Learner" && (
             <button
               className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
               onClick={() => {
@@ -222,7 +232,7 @@ function Project({ myProject }) {
                 handleOpen(project);
               }}
             >
-              Upload
+              {!project.is_completed ? "Upload" : "Upload Again"}
             </button>
           )}
           {/* <button className="w-full bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition">Edit</button> */}
@@ -232,9 +242,18 @@ function Project({ myProject }) {
   };
 
   const getTeacherProjects = async () => {
-    const response = await getAPI(navigation, "projects/teacher/projects/");
+    let url = "projects/teacher/projects/";
 
-    setProjectData(response);
+    if (dropdown != "All") {
+      url += `?group_id=${dropdown}`;
+    }
+    const response = await getAPI(navigation, url);
+    groups.forEach((group) => {
+      console.log("group", group[1], group[0]);
+    });
+    console.log("groups", response?.groups);
+    setGroups([...response?.groups]);
+    setProjectData(response?.data);
   };
 
   const getAdminProjects = async () => {
@@ -272,7 +291,7 @@ function Project({ myProject }) {
 
   useEffect(() => {
     fetchCardData();
-  }, []);
+  }, [dropdown]);
 
   const ProjectGrid = () => {
     return (
@@ -281,21 +300,48 @@ function Project({ myProject }) {
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">
             Projects
           </h2>
+
           {role != "Learner" && (
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 ml-auto px-2"
-              onClick={() => {
-                setData(project);
-                setOpenCreate(true);
-              }}
-            >
-              Create Project
-            </button>
+            <>
+              <div className="ml-6">
+                <FormControl>
+                  <InputLabel id="demo-simple-select-label">
+                    Group Filter
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={dropdown}
+                    label="Group Filter"
+                    onChange={handleChange}
+                    className="w-full min-w-40"
+                    disabled={groups.length == 0}
+                  >
+                    <MenuItem value={"All"}>All</MenuItem>
+                    {groups.map((group) => (
+                      <MenuItem key={group[1]} value={group[1]}>
+                        {group[0]}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 ml-auto px-2"
+                onClick={() => {
+                  setData(project);
+                  setOpenCreate(true);
+                }}
+              >
+                Create Project
+              </button>
+            </>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
           {projectData.map((project, index) => (
             <ProjectCard key={index} project={project} />
           ))}

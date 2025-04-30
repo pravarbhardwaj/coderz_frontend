@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
-import PdfFlipbookModal from "../components/PdfFlipbookModal";
 import PdfSwiperModal from "../components/PdfSwiperModal";
 
 const Content = () => {
@@ -11,11 +10,12 @@ const Content = () => {
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [open, setOpen] = useState(false);
+  const [pdfName, setPdfName] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userId = localStorage.getItem("user_id")
+    const userId = localStorage.getItem("user_id");
     axios
       .get(
         "https://apiv2.questplus.in/api/get-content-by-user/?user_id=" + userId
@@ -31,7 +31,18 @@ const Content = () => {
       });
   }, []);
 
-  const pdfs = data.filter((item) => item.contentTypeCode === "04");
+  const isPaper = (name = "") =>
+    name.toLowerCase().includes("question") ||
+    name.toLowerCase().includes("answer");
+
+  const pdfs = data.filter(
+    (item) => item.contentTypeCode === "04" && !isPaper(item.contentName)
+  );
+
+  const papers = data.filter(
+    (item) => item.contentTypeCode === "04" && isPaper(item.contentName)
+  );
+
   const quizzes = data.filter((item) => item.contentTypeCode === "08");
 
   const cleanTitle = (title = "") => title.replace(/-MCQ$/i, "").trim();
@@ -42,42 +53,33 @@ const Content = () => {
         isOpen={open}
         onClose={() => setOpen(false)}
         pdfUrl={selectedPdf}
+        pdfName={pdfName}
       />
+
+      {/* Tabs */}
       <div className="flex space-x-4 border-b border-gray-200 mb-4">
-        <button
-          onClick={() => {
-            setActiveTab("pdfs");
-            setSelectedPdf(null);
-            setOpen(false);
-            setSelectedQuiz(null);
-          }}
-          className={classNames(
-            "py-2 px-4 text-sm font-medium",
-            activeTab === "pdfs"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:text-blue-600"
-          )}
-        >
-          PDFs
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab("quizzes");
-            setSelectedPdf(null);
-            setSelectedQuiz(null);
-            setOpen(false);
-          }}
-          className={classNames(
-            "py-2 px-4 text-sm font-medium",
-            activeTab === "quizzes"
-              ? "border-b-2 border-blue-500 text-blue-600"
-              : "text-gray-600 hover:text-blue-600"
-          )}
-        >
-          Quiz
-        </button>
+        {["pdfs", "papers", "quizzes"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+              setSelectedPdf(null);
+              setSelectedQuiz(null);
+              setOpen(false);
+            }}
+            className={classNames(
+              "py-2 px-4 text-sm font-medium capitalize",
+              activeTab === tab
+                ? "border-b-2 border-blue-500 text-blue-600"
+                : "text-gray-600 hover:text-blue-600"
+            )}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
+      {/* PDFs */}
       {activeTab === "pdfs" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pdfs.map((pdf) => (
@@ -86,6 +88,7 @@ const Content = () => {
               className="border p-4 rounded-lg shadow cursor-pointer hover:bg-gray-50"
               onClick={() => {
                 setSelectedPdf(pdf.fileUrl);
+
                 setOpen(true);
               }}
             >
@@ -98,6 +101,30 @@ const Content = () => {
         </div>
       )}
 
+      {/* Papers */}
+      {activeTab === "papers" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {papers.map((paper) => (
+            <div
+              key={paper.qcId}
+              className="border p-4 rounded-lg shadow cursor-pointer hover:bg-gray-50"
+              onClick={() => {
+                console.log("here - ", paper.contentName);
+                setPdfName(paper.contentName);
+                setSelectedPdf(paper.fileUrl);
+                setOpen(true);
+              }}
+            >
+              <h3 className="text-lg font-semibold">{paper.contentName}</h3>
+              <p className="text-sm text-gray-500">
+                {paper.operationDisplayName}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Quizzes */}
       {activeTab === "quizzes" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quizzes.map((quiz) => (
@@ -114,6 +141,7 @@ const Content = () => {
         </div>
       )}
 
+      {/* Quiz Modal */}
       {selectedQuiz && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">

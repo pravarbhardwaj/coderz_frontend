@@ -118,6 +118,7 @@ const ProjectReview = () => {
             <TableRow>
               <TableCell>Student</TableCell>
               <TableCell>Student Name</TableCell>
+              <TableCell>Project Title</TableCell>
               <TableCell>Submitted At</TableCell>
               <TableCell>Reviewed</TableCell>
             </TableRow>
@@ -132,6 +133,8 @@ const ProjectReview = () => {
               >
                 <TableCell>{submission.student}</TableCell>
                 <TableCell>{submission.student_name}</TableCell>
+                <TableCell>{submission.project.title}</TableCell>
+
                 <TableCell>
                   {dayjs(submission.submitted_at).format("DD-MM-YYYY")}
                 </TableCell>
@@ -177,6 +180,17 @@ const ProjectReview = () => {
           >
             View Submission File
           </Button>
+          <div className="mt-10">
+            <TextField
+              label="Student's Learning"
+              multiline
+              required
+              fullWidth
+              rows={4}
+              value={selectedSubmission?.feedback}
+              disabled={true}
+            />
+          </div>
           <div className="mt-10">
             <TextField
               label="Feedback"
