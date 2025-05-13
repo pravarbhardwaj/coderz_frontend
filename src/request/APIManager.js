@@ -2,7 +2,7 @@ import axios from "axios";
 import api from "./request";
 import { Form } from "react-router-dom";
 
-export const BASE_URL = "https://585c-49-205-41-141.ngrok-free.app/api/v1/";
+export const BASE_URL = "https://coding1.questplus.in/api/v1/";
 
 const handleLogout = (navigation) => {
   localStorage.clear();
