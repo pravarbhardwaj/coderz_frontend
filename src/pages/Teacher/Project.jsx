@@ -28,14 +28,25 @@ function Project({ myProject }) {
   const [fileInputs, setFileInputs] = useState([{ type: "", file: null }]);
   const [modal, setModal] = useState(false);
   const [projectData, setProjectData] = useState([]);
-  const [data, setData] = useState();
+  const [data, setData] = useState({
+    project_submission: {
+      teacher_evaluation: "",
+    },
+    id: null, 
+  });
   const [role, setRole] = useState("");
 
   const [open, setOpen] = useState(false);
   const [upload, setUpload] = useState();
   const [files, setFiles] = useState([]);
   const fileInputRef = useRef(null);
-  const [project, setProject] = useState({});
+  const [project, setProject] = useState({
+    thumbnail: "",
+    title: "",
+    gradeTag: "",
+    due_date: "",
+    id: null,
+  });
 
   const [session, setSession] = useState(false);
   const [learning, setLearning] = useState("");
@@ -47,6 +58,7 @@ function Project({ myProject }) {
   const [feedbackModal, setFeedbackModal] = useState(false);
   const [dropdown, setDropdown] = useState("All");
   const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (value) => {
     setDropdown(value.target.value);
@@ -267,25 +279,25 @@ function Project({ myProject }) {
 
   const getStudentProjects = async () => {
     let response = null;
-    if (myProject) {
-      response = await getAPI(navigation, "projects/student/projects/");
-    } else {
-      response = await getAPI(navigation, "projects/student/projects/");
-    }
-
+    response = await getAPI(navigation, "projects/student/projects/");
     setProjectData(response);
   };
 
-  const fetchCardData = () => {
-    if (localStorage.getItem("role") == "Learner") {
-      getStudentProjects();
-      setRole("Learner");
-    } else if (localStorage.getItem("role") == "Admin") {
-      getAdminProjects();
-      setRole("Admin");
-    } else {
-      getTeacherProjects();
-      setRole("Teacher");
+  const fetchCardData = async () => {
+    setLoading(true);
+    try {
+      if (localStorage.getItem("role") == "Learner") {
+        await getStudentProjects();
+        setRole("Learner");
+      } else if (localStorage.getItem("role") == "Admin") {
+        await getAdminProjects();
+        setRole("Admin");
+      } else {
+        await getTeacherProjects();
+        setRole("Teacher");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -301,7 +313,7 @@ function Project({ myProject }) {
             Projects
           </h2>
 
-          {role != "Learner" && (
+          {role !== "Learner" && !loading && (
             <>
               <div className="ml-6">
                 <FormControl>
@@ -331,7 +343,12 @@ function Project({ myProject }) {
                 type="submit"
                 className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 ml-auto px-2"
                 onClick={() => {
-                  setData(project);
+                  setData({
+                    project_submission: {
+                      teacher_evaluation: "",
+                    },
+                    ...project,
+                  });
                   setOpenCreate(true);
                 }}
               >
@@ -341,11 +358,21 @@ function Project({ myProject }) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {projectData.map((project, index) => (
-            <ProjectCard key={index} project={project} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-10 text-gray-600 text-2xl">
+            Loading projects...
+          </div>
+        ) : projectData.length === 0 ? ( // NEW
+          <div className="text-center py-10 text-gray-600 text-2xl">
+            No Projects Assigned
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {projectData.map((project, index) => (
+              <ProjectCard key={index} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     );
   };
