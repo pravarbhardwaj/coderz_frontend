@@ -102,7 +102,7 @@ const ProjectReview = () => {
               checked={pendingOnly}
               onChange={(e) => {
                 setPendingOnly(e.target.checked);
-                setSearchParams({ page: 1, pending: e.target.checked });
+                setSearchParams({ page: "1", pending: String(e.target.checked) });
               }}
             />
           }

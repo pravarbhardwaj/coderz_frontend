@@ -5,15 +5,40 @@ import { pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const AssetCard = ({ asset, onImageClick, onPdfClick }) => {
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl); // clean up
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
   return (
     <div className="border rounded-lg p-4 shadow-md bg-gray-50 w-64">
       {asset.file_type === "image" ? (
-        <img
-          src={asset.file}
-          alt="Asset"
-          className="w-full h-40 object-cover rounded-md cursor-pointer"
-          onClick={() => onImageClick(asset.file)}
-        />
+        <>
+          <img
+            src={asset.file}
+            alt="Asset"
+            className="w-full h-40 object-cover rounded-md cursor-pointer"
+            onClick={() => onImageClick(asset.file)}
+          />
+          <button
+            onClick={() => handleDownload(asset.file, "image_" + asset.id + ".jpg")}
+            className="mt-2 block border px-4 py-2 rounded-md text-blue-600 border-blue-600 text-center w-full"
+          >
+            Download
+          </button>
+        </>
       ) : asset.file_type === "pdf" ? (
         <div className="flex flex-col items-center">
           <img
@@ -28,11 +53,18 @@ const AssetCard = ({ asset, onImageClick, onPdfClick }) => {
           >
             View
           </button>
+          <button
+            onClick={() => handleDownload(asset.file, "lesson_plan_" + asset.id + ".pdf")}
+            className="mt-2 block border px-4 py-2 rounded-md text-blue-600 border-blue-600 text-center w-full"
+          >
+            Download
+          </button>
         </div>
       ) : null}
     </div>
   );
 };
+
 
 const AssetGallery = ({ assets }) => {
   const [expandedImage, setExpandedImage] = useState(null);
