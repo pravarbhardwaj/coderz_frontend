@@ -14,7 +14,6 @@ export default function Sidebar({ children }) {
       <aside className="z-10 flex h-full sticky top-0">
         <nav className="flex-col bg-white border-r shadow-sm">
           <div className="p-4 pb-2 flex justify-between items-center">
-            {/* <img src={logo} className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"}`} /> */}
             <button
               onClick={() => setExpanded((curr) => !curr)}
               className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
@@ -33,16 +32,16 @@ export default function Sidebar({ children }) {
 }
 
 const activeMapper = {
-  // Dashboard: "/",
   Projects: "/",
   Content: "/content",
+  Learn: "/learn",
+  Quizzes: "/quizzes",
+  Practice: "/practice",
+  'Teach Content': "/teachcontent",
 
-  // Schedule: "/schedule",
   "School Details": "/schooldetails",
-  // Curriculum: "/curriculum",
-  // "My Projects": "/myprojects",
+
   "Project Review": "/projectreview",
-  // "My Class": "/myclass",
 };
 
 const handleLogout = (navigate) => {
@@ -78,11 +77,6 @@ export function SidebarItem({ icon, text }) {
       >
         {text}
       </span>
-      {/* {alert && (
-                <div className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${expanded ? "" : "top-2"}`}>
-
-                </div>
-            )} */}
 
       {!expanded && (
         <div

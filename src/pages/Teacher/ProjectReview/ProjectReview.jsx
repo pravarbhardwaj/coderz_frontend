@@ -137,7 +137,7 @@ const ProjectReview = () => {
                   {dayjs(submission.submitted_at).format("DD-MM-YYYY")}
                 </TableCell>
                 <TableCell>
-                  {submission.teacher_evaluation ? "True" : "False"}
+                  {submission.teacher_evaluation ? "Submitted" : "Pending"}
                 </TableCell>
               </TableRow>
             ))}

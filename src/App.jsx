@@ -1,28 +1,15 @@
 // @ts-ignore
 import {
-  LayoutDashboard,
-  HomeIcon,
-  StickyNote,
   Layers,
-  Flag,
-  Calendar,
-  LifeBuoy,
-  Settings,
   Book,
   School,
-  Brain,
   NotebookPen,
-  Trophy,
-  ChartLine,
-  MonitorPlay,
-  LogIn,
   LogOut,
   ListCheck,
-  Upload,
   Shapes,
+  BookOpenText,
 } from "lucide-react";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
-import Home from "./pages/Student/Home";
 import {
   BrowserRouter as Router,
   Route,
@@ -30,24 +17,20 @@ import {
   BrowserRouter,
   Navigate,
   Outlet,
-  useLocation,
 } from "react-router-dom";
 import * as React from "react";
-import ClassroomProject from "./pages/Student/ClassroomProject/ClassroomProject";
-import AdminDashboard from "./pages/Admin/AdminDashboard";
-import Schedule from "./pages/Admin/Schedule";
 import SchoolDetails from "./pages/Admin/SchoolDetails/SchoolDetails";
 import Login from "./pages/Login/Login";
-import Curriculum from "./pages/Admin/Curriculum/Curriculum";
-import MyProjects from "./pages/Student/MyProjects/MyProjects";
 import LoginSSO from "./pages/Login/LoginSSO";
-import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import ProjectReview from "./pages/Teacher/ProjectReview/ProjectReview";
 import Project from "./pages/Teacher/Project";
 import Content from "./pages/Content";
 import QuizApp from "./components/QuizApp";
 import QuizResults from "./components/QuizResults";
 import StudentLogin from "./pages/Student/StudentLogin";
+import Learn from "./pages/Student/Learn";
+import Quizzes from "./pages/Student/Quizzes";
+import Practice from "./pages/Student/Practice";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -98,36 +81,13 @@ function App() {
           <Sidebar>
             {userRole == "Learner" && (
               <>
-                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
-                {/* <SidebarItem icon={<Book size={20} />} text="Digital Book" /> */}
-                {/* <SidebarItem
-                  icon={<School size={20} />}
-                  text="Classroom Project"
-                /> */}
-                {/* <SidebarItem
-                  icon={<StickyNote size={20} />}
-                  text="Personalised Project"
-                /> */}
                 <SidebarItem icon={<Layers size={20} />} text="Projects" />
-                <SidebarItem icon={<Layers size={20} />} text="Content" />
-
-                {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
-                {/* <SidebarItem
-                  icon={<NotebookPen size={20} />}
-                  text="Assessment"
-                /> */}
-                {/* <SidebarItem icon={<Trophy size={20} />} text="Competition" /> */}
-                {/* <SidebarItem icon={<ChartLine size={20} />} text="Report" /> */}
-                {/* <SidebarItem
-                  icon={<MonitorPlay size={20} />}
-                  text="Platform Videos"
-                /> */}
+                <SidebarItem icon={<Book size={20} />} text="Learn" />
+                <SidebarItem icon={<BookOpenText size={20} />} text="Quizzes" />
+                <SidebarItem icon={<NotebookPen size={20} />} text="Practice" />
 
                 <hr className="my-3" />
-                {/* <SidebarItem
-                  icon={<Settings size={20} />}
-                  text="Notifications"
-                /> */}
+
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -138,23 +98,17 @@ function App() {
 
             {userRole == "Teacher" && (
               <>
+                <SidebarItem icon={<Book size={20} />} text="Teach Content" />
+
                 <SidebarItem icon={<Shapes size={20} />} text="Projects" />
-                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
+
                 <SidebarItem
                   icon={<ListCheck size={20} />}
                   text="Project Review"
                 />
 
-                {/* <SidebarItem
-                  icon={<Shapes size={20} />}
-                  text="My Class"
-                /> */}
-
                 <hr className="my-3" />
-                {/* <SidebarItem
-                  icon={<Settings size={20} />}
-                  text="Notifications"
-                /> */}
+
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -167,32 +121,13 @@ function App() {
               <>
                 <SidebarItem icon={<Layers size={20} />} text="Projects" />
 
-                {/* <SidebarItem icon={<HomeIcon size={20} />} text="Dashboard" /> */}
-                {/* <SidebarItem icon={<Book size={20} />} text="Schedule" /> */}
                 <SidebarItem
                   icon={<School size={20} />}
                   text="School Details"
                 />
-                {/* <SidebarItem
-                  icon={<StickyNote size={20} />}
-                  text="Curriculum"
-                /> */}
-                {/* <SidebarItem icon={<Brain size={20} />} text="Reflective" /> */}
-                {/* <SidebarItem
-                  icon={<NotebookPen size={20} />}
-                  text="Assessment"
-                /> */}
-                {/* <SidebarItem icon={<Trophy size={20} />} text="Competition" /> */}
-                {/* <SidebarItem
-                  icon={<MonitorPlay size={20} />}
-                  text="Platform Videos"
-                /> */}
 
                 <hr className="my-3" />
-                {/* <SidebarItem
-                  icon={<Settings size={20} />}
-                  text="Notifications"
-                /> */}
+
                 <div className="flex h-full">
                   <div className="mt-auto">
                     <SidebarItem icon={<LogOut size={20} />} text="Logout" />
@@ -239,21 +174,11 @@ function App() {
         )}
         {role == "Learner" && (
           <>
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<Home />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/"
-            /> */}
             <Route
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<Project />} />
+                  <SideBar element={<Project myProject={false} />} />
                   <PrivateWrapper />
                 </div>
               }
@@ -268,6 +193,36 @@ function App() {
                 </div>
               }
               path="/content"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Learn />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/learn"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Quizzes />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/quizzes"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Practice />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/practice"
             />
             <Route
               element={
@@ -289,30 +244,10 @@ function App() {
               }
               path="/quiz-result/:id"
             />
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<Project myProject={true} />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/myprojects"
-            /> */}
           </>
         )}
         {role == "Admin" && (
           <>
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<AdminDashboard />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/"
-            /> */}
             <Route
               element={
                 <div>
@@ -323,26 +258,7 @@ function App() {
               }
               path="/"
             />
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<Schedule />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/schedule"
-            /> */}
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<Curriculum />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/curriculum"
-            /> */}
+
             <Route
               element={
                 <div>
@@ -358,16 +274,6 @@ function App() {
 
         {role == "Teacher" && (
           <>
-            {/* <Route
-              element={
-                <div>
-                  <PrivateWrapper />
-                  <SideBar element={<TeacherDashboard />} />
-                  <PrivateWrapper />
-                </div>
-              }
-              path="/"
-            /> */}
             <Route
               element={
                 <div>
@@ -382,7 +288,17 @@ function App() {
               element={
                 <div>
                   <PrivateWrapper />
-                  <SideBar element={<Project />} />
+                  <SideBar element={<Content />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/teachcontent"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Project myProject={false} />} />
                   <PrivateWrapper />
                 </div>
               }
