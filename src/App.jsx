@@ -19,6 +19,8 @@ import {
   Outlet,
 } from "react-router-dom";
 import * as React from "react";
+
+import axiosConfig from "./request/request";
 import SchoolDetails from "./pages/Admin/SchoolDetails/SchoolDetails";
 import Login from "./pages/Login/Login";
 import LoginSSO from "./pages/Login/LoginSSO";
