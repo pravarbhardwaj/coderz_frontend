@@ -11,12 +11,12 @@ export default function Sidebar({ children }) {
 
   return (
     <>
-      <aside className="z-10 flex h-full sticky top-0">
+      <aside className="z-10 flex h-screen sticky top-0 ">
         <nav className="flex-col bg-white border-r shadow-sm">
           <div className="p-4 pb-2 flex justify-between items-center">
             <button
               onClick={() => setExpanded((curr) => !curr)}
-              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
+              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 flex-1 "
             >
               {expanded ? <ChevronFirst /> : <ChevronLast />}
             </button>
