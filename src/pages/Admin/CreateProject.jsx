@@ -46,64 +46,85 @@ export default function CreateProject({
     setFormData({ ...formData, thumbnail: e.target.files[0] });
   };
 
+  useEffect(() => {
+    console.log('form data: ', formData)
+  }, [formData])
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
+  e.preventDefault();
+  const formDataToSend = new FormData();
+
+  Object.entries(formData).forEach(([key, value]) => {
+    if (key === "group" && Array.isArray(value)) {
+      value.forEach((groupId) => {
+        formDataToSend.append("group", groupId); // ✅ Repeated key for Django
+      });
+    } else {
       formDataToSend.append(key, value);
-    });
-
-    try {
-      const response = await postAPI(
-        navigation,
-        "projects/classroom-projects/",
-        formData,
-        true
-      );
-      if (response) {
-        alert("Project added successfully!");
-        getAdminProjects();
-        setOpenCreate(false)
-      } else {
-        alert("Failed to add project.");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("An error occurred.");
     }
-  };
+  });
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
+  if (!formData["thumbnail"]) {
+    formDataToSend.delete("thumbnail");
+  }
+
+  try {
+    const response = await postAPI(
+      navigation,
+      "projects/classroom-projects/",
+      formDataToSend,
+      true
+    );
+    if (response) {
+      alert("Project added successfully!");
+      getAdminProjects();
+      setOpenCreate(false);
+    } else {
+      alert("Failed to add project.");
+    }
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("An error occurred.");
+  }
+};
+
+ const handleUpdate = async (e) => {
+  e.preventDefault();
+  const formDataToSend = new FormData();
+
+  Object.entries(formData).forEach(([key, value]) => {
+    if (key === "group" && Array.isArray(value)) {
+      value.forEach((groupId) => {
+        formDataToSend.append("group", groupId); 
+      });
+    } else {
       formDataToSend.append(key, value);
-    });
-
-    if (!formData["thumbnail"]) {
-      formDataToSend.delete("thumbnail");
     }
+  });
 
-    try {
-      const response = await patchAPI(
-        navigation,
-        "projects/classroom-projects/" + editData["id"] + "/",
-        formData,
-        true
-      );
+  if (!formData["thumbnail"]) {
+    formDataToSend.delete("thumbnail");
+  }
 
-      if (response) {
-        alert("Project updated successfully!");
+  try {
+    const response = await patchAPI(
+      navigation,
+      "projects/classroom-projects/" + editData["id"] + "/",
+      formDataToSend, // ✅ use the built FormData here
+      true
+    );
 
-        getAdminProjects();
-      } else {
-        alert("Failed to update project.");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("An error occurred.");
+    if (response) {
+      alert("Project updated successfully!");
+      getAdminProjects();
+    } else {
+      alert("Failed to update project.");
     }
-  };
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("An error occurred.");
+  }
+};
 
   const addSession = () => {
     setSessions([
@@ -177,24 +198,52 @@ export default function CreateProject({
           required
         />
         <div>
-          <FormControl className="w-full">
-            <InputLabel>Group*</InputLabel>
-            <Select
-              value={formData["group"]}
-              label="Group*"
-              onChange={(value) => {
-                setFormData({ ...formData, ["group"]: value.target.value });
-              }}
-              className="w-full"
-              required
-            >
-              {groupMapping.map((item) => (
-                <MenuItem value={item.GroupId}>
-                  {item.LID__LocationName} - {item.GID__GroupName}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+         <FormControl className="w-full">
+  <InputLabel>Group*</InputLabel>
+  <Select
+    multiple
+    value={formData["group"] || []}
+    label="Group*"
+    disabled={edit ? true : false}
+    onChange={(event) => {
+      const {
+        target: { value },
+      } = event;
+
+      setFormData({
+        ...formData,
+        group: typeof value === "string" ? value.split(",") : value,
+      });
+    }}
+    className="w-full"
+    required
+    renderValue={(selected) =>
+      groupMapping
+        .filter((item) => selected.includes(item.GroupId))
+        .map((item) => `${item.LID__LocationName} - ${item.GID__GroupName}`)
+        .join(", ")
+    }
+  >
+   {groupMapping.map((item) => {
+  const isSelected = formData["group"]?.includes(item.GroupId);
+
+  return (
+    <MenuItem
+      key={item.GroupId}
+      value={item.GroupId}
+      style={{
+        backgroundColor: isSelected ? '#e3f2fd' : 'inherit', // light blue
+        fontWeight: isSelected ? 600 : 400,
+      }}
+    >
+      {item.LID__LocationName} - {item.GID__GroupName}
+    </MenuItem>
+  );
+})}
+
+  </Select>
+</FormControl>
+
         </div>
 
         <div>
