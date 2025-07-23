@@ -8,20 +8,20 @@ export default function CreateProject({
   getAdminProjects,
   edit = false,
   setOpenCreate,
-  editData = {},
+  editData,
 }) {
+  editData = editData || {};
   const [formData, setFormData] = useState({
-    title: editData ? editData["title"] ?? "" : "",
-    description: editData ? editData["description"] ?? "" : "",
-    group: editData ? editData["groupId"] : "",
-    due_date: editData ? editData["due_date"] ?? "" : "",
+    title: editData?.title ?? "",
+    description: editData?.description ?? "",
+    group: editData?.groupId ?? [],
+    due_date: editData?.due_date ?? "",
     thumbnail: null,
   });
 
-  const [projectId, setProjectId] = useState(null);
-  const [assets, setAssets] = useState([]);
-  const [quiz, setQuiz] = useState([]);
-  const [sessions, setSessions] = useState([]);
+  const [sessions, setSessions] = useState(
+    edit ? [] : [{ title: "", overview_text: "", ppt_file: null, thumbnail: null, module_name: "" }]
+  );
   const [groupMapping, setGroupMapping] = useState([]);
 
   useEffect(() => {
@@ -29,11 +29,7 @@ export default function CreateProject({
   }, []);
 
   const fetchAllGroups = async () => {
-    const response = await getAPI(
-      navigation,
-      "/accounts/admin/grade-division-mapping/"
-    );
-
+    const response = await getAPI(navigation, "/accounts/admin/grade-division-mapping/");
     setGroupMapping([...response.group_names]);
   };
 
@@ -46,97 +42,6 @@ export default function CreateProject({
     setFormData({ ...formData, thumbnail: e.target.files[0] });
   };
 
-  useEffect(() => {
-    console.log('form data: ', formData)
-  }, [formData])
-  
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  const formDataToSend = new FormData();
-
-  Object.entries(formData).forEach(([key, value]) => {
-    if (key === "group" && Array.isArray(value)) {
-      value.forEach((groupId) => {
-        formDataToSend.append("group", groupId); // ✅ Repeated key for Django
-      });
-    } else {
-      formDataToSend.append(key, value);
-    }
-  });
-
-  if (!formData["thumbnail"]) {
-    formDataToSend.delete("thumbnail");
-  }
-
-  try {
-    const response = await postAPI(
-      navigation,
-      "projects/classroom-projects/",
-      formDataToSend,
-      true
-    );
-    if (response) {
-      alert("Project added successfully!");
-      getAdminProjects();
-      setOpenCreate(false);
-    } else {
-      alert("Failed to add project.");
-    }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("An error occurred.");
-  }
-};
-
- const handleUpdate = async (e) => {
-  e.preventDefault();
-  const formDataToSend = new FormData();
-
-  Object.entries(formData).forEach(([key, value]) => {
-    if (key === "group" && Array.isArray(value)) {
-      value.forEach((groupId) => {
-        formDataToSend.append("group", groupId); 
-      });
-    } else {
-      formDataToSend.append(key, value);
-    }
-  });
-
-  if (!formData["thumbnail"]) {
-    formDataToSend.delete("thumbnail");
-  }
-
-  try {
-    const response = await patchAPI(
-      navigation,
-      "projects/classroom-projects/" + editData["id"] + "/",
-      formDataToSend, // ✅ use the built FormData here
-      true
-    );
-
-    if (response) {
-      alert("Project updated successfully!");
-      getAdminProjects();
-    } else {
-      alert("Failed to update project.");
-    }
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("An error occurred.");
-  }
-};
-
-  const addSession = () => {
-    setSessions([
-      ...sessions,
-      { title: "", overview_text: "", ppt_file: null, module_name: "" },
-    ]);
-  };
-
-  const removeSession = (index) => {
-    setSessions(sessions.filter((_, i) => i !== index));
-  };
-
   const handleSessionChange = (index, e) => {
     const { name, value } = e.target;
     const updatedSessions = [...sessions];
@@ -144,41 +49,109 @@ export default function CreateProject({
     setSessions(updatedSessions);
   };
 
-  const handleSessionFileChange = (index, e) => {
+  const handleSessionFileChange = (index, e, fieldName) => {
     const updatedSessions = [...sessions];
-    updatedSessions[index].ppt_file = e.target.files[0];
+    updatedSessions[index][fieldName] = e.target.files[0];
     setSessions(updatedSessions);
   };
 
-  const handleSessionUpload = async (index) => {
-    const sessionData = new FormData();
-    sessionData.append("project", projectId);
-    Object.entries(sessions[index]).forEach(([key, value]) => {
-      sessionData.append(key, value);
+  const addSession = () => {
+    setSessions([...sessions, { title: "", overview_text: "", ppt_file: null, thumbnail: null, module_name: "" }]);
+  };
+
+  const removeSession = (index) => {
+    if (sessions.length > 1) {
+      setSessions(sessions.filter((_, i) => i !== index));
+    }
+  };
+
+  const buildFormData = () => {
+    const formDataToSend = new FormData();
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "group" && Array.isArray(value)) {
+        value.forEach((groupId) => {
+          formDataToSend.append("group", groupId);
+        });
+      } else if (value) {
+        formDataToSend.append(key, value);
+      }
     });
-    try {
-      const response = await fetch(
-        `https://api.example.com/projects/${projectId}/sessions`,
-        {
-          method: "POST",
-          body: sessionData,
+
+    sessions.forEach((session, index) => {
+      Object.entries(session).forEach(([key, value]) => {
+        if (value) {
+          formDataToSend.append(`sessions[${index}]${key}`, value);
         }
-      );
+      });
+    });
+
+    return formDataToSend;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formDataToSend = buildFormData();
+
+    try {
+      const response = await postAPI(navigation, "projects/classroom-projects/", formDataToSend, true);
+
       if (response) {
-        alert("Session uploaded successfully!");
+        alert("Project added successfully!");
+        getAdminProjects();
+        setOpenCreate(false);
       } else {
-        alert("Something went wrong!");
+        alert("Failed to add project.");
       }
     } catch (error) {
-      console.error("Error uploading session:", error);
+      console.error("Error submitting form:", error);
+      alert("An error occurred.");
     }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const formDataToSend = buildFormData();
+
+    try {
+      const response = await patchAPI(navigation, `projects/classroom-projects/${editData.id}/`, formDataToSend, true);
+
+      if (response) {
+        alert("Project updated successfully!");
+        getAdminProjects();
+      } else {
+        alert("Failed to update project.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred.");
+    }
+  };
+
+  const isFormValid = () => {
+    const { title, description, group, due_date, thumbnail } = formData;
+    if (!title || !description || !due_date || !group.length || (!edit && !thumbnail)) {
+      return false;
+    }
+
+    for (let session of sessions) {
+      if (
+        !session.title ||
+        !session.overview_text ||
+        !session.ppt_file ||
+        !session.thumbnail ||
+        !session.module_name
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">
-        {edit ? "Update" : "Add"} Project
-      </h2>
+      <h2 className="text-xl font-bold mb-4">{edit ? "Update" : "Add"} Project</h2>
       <form onSubmit={edit ? handleUpdate : handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -197,57 +170,46 @@ export default function CreateProject({
           className="w-full p-2 border rounded"
           required
         />
-        <div>
-         <FormControl className="w-full">
-  <InputLabel>Group*</InputLabel>
-  <Select
-    multiple
-    value={formData["group"] || []}
-    label="Group*"
-    disabled={edit ? true : false}
-    onChange={(event) => {
-      const {
-        target: { value },
-      } = event;
-
-      setFormData({
-        ...formData,
-        group: typeof value === "string" ? value.split(",") : value,
-      });
-    }}
-    className="w-full"
-    required
-    renderValue={(selected) =>
-      groupMapping
-        .filter((item) => selected.includes(item.GroupId))
-        .map((item) => `${item.LID__LocationName} - ${item.GID__GroupName}`)
-        .join(", ")
-    }
-  >
-   {groupMapping.map((item) => {
-  const isSelected = formData["group"]?.includes(item.GroupId);
-
-  return (
-    <MenuItem
-      key={item.GroupId}
-      value={item.GroupId}
-      style={{
-        backgroundColor: isSelected ? '#e3f2fd' : 'inherit', // light blue
-        fontWeight: isSelected ? 600 : 400,
-      }}
-    >
-      {item.LID__LocationName} - {item.GID__GroupName}
-    </MenuItem>
-  );
-})}
-
-  </Select>
-</FormControl>
-
-        </div>
+        <FormControl className="w-full">
+          <InputLabel>Group*</InputLabel>
+          <Select
+            multiple
+            value={formData.group}
+            label="Group*"
+            disabled={edit}
+            onChange={(event) => {
+              const value = event.target.value;
+              setFormData({
+                ...formData,
+                group: typeof value === "string" ? value.split(",") : value,
+              });
+            }}
+            className="w-full"
+            required
+            renderValue={(selected) =>
+              groupMapping
+                .filter((item) => selected.includes(item.GroupId))
+                .map((item) => `${item.LID__LocationName} - ${item.GID__GroupName}`)
+                .join(", ")
+            }
+          >
+            {groupMapping.map((item) => (
+              <MenuItem
+                key={item.GroupId}
+                value={item.GroupId}
+                style={{
+                  backgroundColor: formData.group.includes(item.GroupId) ? "#e3f2fd" : "inherit",
+                  fontWeight: formData.group.includes(item.GroupId) ? 600 : 400,
+                }}
+              >
+                {item.LID__LocationName} - {item.GID__GroupName}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <div>
-          Due Date:
+          <label>Due Date:</label>
           <input
             type="date"
             name="due_date"
@@ -257,65 +219,98 @@ export default function CreateProject({
             required
           />
         </div>
+
         <div>
-          <div>Thumbnail:</div>
+          <label>Thumbnail:</label>
           <input
             type="file"
             name="thumbnail"
             onChange={handleFileChange}
             className="w-full p-2 border rounded"
-            required={edit ? false : true}
+            required={!edit}
           />
         </div>
+
+        {!edit && (
+          <div>
+            <h3 className="text-lg font-bold mt-6">Add Sessions</h3>
+            {sessions.map((session, index) => (
+              <div key={index} className="mt-4 p-4 border rounded">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Session Title"
+                  value={session.title}
+                  onChange={(e) => handleSessionChange(index, e)}
+                  className="w-full p-2 border rounded mb-2"
+                  required
+                />
+                <textarea
+                  name="overview_text"
+                  placeholder="Overview"
+                  value={session.overview_text}
+                  onChange={(e) => handleSessionChange(index, e)}
+                  className="w-full p-2 border rounded mb-2"
+                  required
+                />
+                <input
+                  type="text"
+                  name="module_name"
+                  placeholder="Module Name"
+                  value={session.module_name}
+                  onChange={(e) => handleSessionChange(index, e)}
+                  className="w-full p-2 border rounded mb-2"
+                  required
+                />
+                <div>
+                  <label className="block mb-1">PPT File:</label>
+                  <input
+                    type="file"
+                    onChange={(e) => handleSessionFileChange(index, e, "ppt_file")}
+                    className="w-full p-2 border rounded mb-2"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block mb-1">Thumbnail:</label>
+                  <input
+                    type="file"
+                    onChange={(e) => handleSessionFileChange(index, e, "thumbnail")}
+                    className="w-full p-2 border rounded mb-2"
+                    required
+                  />
+                </div>
+                {index !== 0 && (
+                  <button
+                    type="button"
+                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 mt-2"
+                    onClick={() => removeSession(index)}
+                  >
+                    Remove Session
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSession}
+              className="mt-4 w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+            >
+              Add Session
+            </button>
+          </div>
+        )}
+
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          disabled={!isFormValid()}
+          className={`w-full text-white py-2 rounded ${
+            isFormValid() ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
           {edit ? "Update" : "Submit"}
         </button>
       </form>
-
-      {projectId && (
-        <div className="mt-6">
-          <h3 className="text-lg font-bold">Manage Project</h3>
-          <button
-            className="w-full bg-green-500 text-white py-2 mt-2 rounded hover:bg-green-600"
-            onClick={addSession}
-          >
-            Add Session
-          </button>
-          {sessions.map((session, index) => (
-            <div key={index} className="mt-4 p-4 border rounded">
-              <input
-                type="text"
-                name="title"
-                placeholder="Session Title"
-                value={session.title}
-                onChange={(e) => handleSessionChange(index, e)}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="file"
-                name="ppt_file"
-                onChange={(e) => handleSessionFileChange(index, e)}
-                className="w-full p-2 border rounded"
-              />
-              <button
-                className="w-full bg-red-500 text-white py-2 mt-2 rounded hover:bg-red-600"
-                onClick={() => removeSession(index)}
-              >
-                Remove
-              </button>
-              <button
-                className="w-full bg-purple-500 text-white py-2 mt-2 rounded hover:bg-purple-600"
-                onClick={() => handleSessionUpload(index)}
-              >
-                Upload Session
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

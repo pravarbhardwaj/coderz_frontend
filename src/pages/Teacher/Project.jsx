@@ -425,7 +425,7 @@ function Project({ myProject }) {
                   : getTeacherProjects
               }
               setOpenCreate={setOpenCreate}
-              // editData={editProject}
+              editData={null}
               edit={false}
             />
           </div>
