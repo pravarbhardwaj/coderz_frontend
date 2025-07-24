@@ -20,7 +20,17 @@ export default function CreateProject({
   });
 
   const [sessions, setSessions] = useState(
-    edit ? [] : [{ title: "", overview_text: "", ppt_file: null, thumbnail: null, module_name: "" }]
+    edit
+      ? []
+      : [
+          {
+            title: "",
+            overview_text: "",
+            ppt_file: null,
+            thumbnail: null,
+            module_name: "",
+          },
+        ]
   );
   const [groupMapping, setGroupMapping] = useState([]);
 
@@ -29,7 +39,10 @@ export default function CreateProject({
   }, []);
 
   const fetchAllGroups = async () => {
-    const response = await getAPI(navigation, "/accounts/admin/grade-division-mapping/");
+    const response = await getAPI(
+      navigation,
+      "/accounts/admin/grade-division-mapping/"
+    );
     setGroupMapping([...response.group_names]);
   };
 
@@ -39,7 +52,17 @@ export default function CreateProject({
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, thumbnail: e.target.files[0] });
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedImageTypes.includes(file.type)) {
+      alert("Only JPG, JPEG, or PNG files are allowed for the thumbnail.");
+      e.target.value = "";
+      return;
+    }
+
+    setFormData({ ...formData, thumbnail: file });
   };
 
   const handleSessionChange = (index, e) => {
@@ -50,13 +73,44 @@ export default function CreateProject({
   };
 
   const handleSessionFileChange = (index, e, fieldName) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const allowedPdfTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
+
+    if (fieldName === "thumbnail") {
+      if (!allowedImageTypes.includes(file.type)) {
+        alert(
+          "Only JPG, JPEG, or PNG files are allowed for session thumbnails."
+        );
+        e.target.value = "";
+        return;
+      }
+    } else if (fieldName === "ppt_file") {
+      if (!allowedPdfTypes.includes(file.type)) {
+        alert("Only PDF files are allowed for session PPT.");
+        e.target.value = "";
+        return;
+      }
+    }
+
     const updatedSessions = [...sessions];
-    updatedSessions[index][fieldName] = e.target.files[0];
+    updatedSessions[index][fieldName] = file;
     setSessions(updatedSessions);
   };
 
   const addSession = () => {
-    setSessions([...sessions, { title: "", overview_text: "", ppt_file: null, thumbnail: null, module_name: "" }]);
+    setSessions([
+      ...sessions,
+      {
+        title: "",
+        overview_text: "",
+        ppt_file: null,
+        thumbnail: null,
+        module_name: "",
+      },
+    ]);
   };
 
   const removeSession = (index) => {
@@ -94,7 +148,12 @@ export default function CreateProject({
     const formDataToSend = buildFormData();
 
     try {
-      const response = await postAPI(navigation, "projects/classroom-projects/", formDataToSend, true);
+      const response = await postAPI(
+        navigation,
+        "projects/classroom-projects/",
+        formDataToSend,
+        true
+      );
 
       if (response) {
         alert("Project added successfully!");
@@ -114,7 +173,12 @@ export default function CreateProject({
     const formDataToSend = buildFormData();
 
     try {
-      const response = await patchAPI(navigation, `projects/classroom-projects/${editData.id}/`, formDataToSend, true);
+      const response = await patchAPI(
+        navigation,
+        `projects/classroom-projects/${editData.id}/`,
+        formDataToSend,
+        true
+      );
 
       if (response) {
         alert("Project updated successfully!");
@@ -130,7 +194,13 @@ export default function CreateProject({
 
   const isFormValid = () => {
     const { title, description, group, due_date, thumbnail } = formData;
-    if (!title || !description || !due_date || !group.length || (!edit && !thumbnail)) {
+    if (
+      !title ||
+      !description ||
+      !due_date ||
+      !group.length ||
+      (!edit && !thumbnail)
+    ) {
       return false;
     }
 
@@ -151,7 +221,9 @@ export default function CreateProject({
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">{edit ? "Update" : "Add"} Project</h2>
+      <h2 className="text-xl font-bold mb-4">
+        {edit ? "Update" : "Add"} Project
+      </h2>
       <form onSubmit={edit ? handleUpdate : handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -189,7 +261,9 @@ export default function CreateProject({
             renderValue={(selected) =>
               groupMapping
                 .filter((item) => selected.includes(item.GroupId))
-                .map((item) => `${item.LID__LocationName} - ${item.GID__GroupName}`)
+                .map(
+                  (item) => `${item.LID__LocationName} - ${item.GID__GroupName}`
+                )
                 .join(", ")
             }
           >
@@ -198,7 +272,9 @@ export default function CreateProject({
                 key={item.GroupId}
                 value={item.GroupId}
                 style={{
-                  backgroundColor: formData.group.includes(item.GroupId) ? "#e3f2fd" : "inherit",
+                  backgroundColor: formData.group.includes(item.GroupId)
+                    ? "#e3f2fd"
+                    : "inherit",
                   fontWeight: formData.group.includes(item.GroupId) ? 600 : 400,
                 }}
               >
@@ -225,6 +301,7 @@ export default function CreateProject({
           <input
             type="file"
             name="thumbnail"
+            accept=".jpg,.jpeg,.png"
             onChange={handleFileChange}
             className="w-full p-2 border rounded"
             required={!edit}
@@ -266,7 +343,10 @@ export default function CreateProject({
                   <label className="block mb-1">PPT File:</label>
                   <input
                     type="file"
-                    onChange={(e) => handleSessionFileChange(index, e, "ppt_file")}
+                    accept=".pdf,.pptx"
+                    onChange={(e) =>
+                      handleSessionFileChange(index, e, "ppt_file")
+                    }
                     className="w-full p-2 border rounded mb-2"
                     required
                   />
@@ -275,7 +355,10 @@ export default function CreateProject({
                   <label className="block mb-1">Thumbnail:</label>
                   <input
                     type="file"
-                    onChange={(e) => handleSessionFileChange(index, e, "thumbnail")}
+                    accept=".jpg,.jpeg,.png"
+                    onChange={(e) =>
+                      handleSessionFileChange(index, e, "thumbnail")
+                    }
                     className="w-full p-2 border rounded mb-2"
                     required
                   />
@@ -305,7 +388,9 @@ export default function CreateProject({
           type="submit"
           disabled={!isFormValid()}
           className={`w-full text-white py-2 rounded ${
-            isFormValid() ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-400 cursor-not-allowed"
+            isFormValid()
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-gray-400 cursor-not-allowed"
           }`}
         >
           {edit ? "Update" : "Submit"}

@@ -32,7 +32,7 @@ function Project({ myProject }) {
     project_submission: {
       teacher_evaluation: "",
     },
-    id: null, 
+    id: null,
   });
   const [role, setRole] = useState("");
 
@@ -59,6 +59,8 @@ function Project({ myProject }) {
   const [dropdown, setDropdown] = useState("All");
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const handleChange = (value) => {
     setDropdown(value.target.value);
@@ -260,21 +262,21 @@ function Project({ myProject }) {
       url += `?group_id=${dropdown}`;
     }
     const response = await getAPI(navigation, url);
-    groups.forEach((group) => {
-      console.log("group", group[1], group[0]);
-    });
-    console.log("groups", response?.groups);
+
     setGroups([...response?.groups]);
-    setProjectData(response?.data);
+    setProjectData(response?.results);
+    setTotalPages(response.total_pages || 1);
   };
 
-  const getAdminProjects = async () => {
+  const getAdminProjects = async (page = 1) => {
     const response = await getAPI(
       navigation,
-      "projects/classroom-projects/list/"
+      `projects/classroom-projects/list/?page=${page}`
     );
+    setProjectData(response.results.projects);
 
-    setProjectData(response.results);
+    setGroups(response.results.groups || []);
+    setTotalPages(response.total_pages || 1);
   };
 
   const getStudentProjects = async () => {
@@ -290,7 +292,7 @@ function Project({ myProject }) {
         await getStudentProjects();
         setRole("Learner");
       } else if (localStorage.getItem("role") == "Admin") {
-        await getAdminProjects();
+        await getAdminProjects(currentPage);
         setRole("Admin");
       } else {
         await getTeacherProjects();
@@ -303,7 +305,7 @@ function Project({ myProject }) {
 
   useEffect(() => {
     fetchCardData();
-  }, [dropdown]);
+  }, [dropdown, currentPage]);
 
   const ProjectGrid = () => {
     return (
@@ -367,10 +369,34 @@ function Project({ myProject }) {
             No Projects Assigned
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {projectData.map((project, index) => (
-              <ProjectCard key={index} project={project} />
-            ))}
+          <>
+            {" "}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+              {projectData.map((project, index) => (
+                <ProjectCard key={index} project={project} />
+              ))}
+            </div>
+          </>
+        )}
+        {(projectData.length > 0 || currentPage > 1) && (
+          <div className="flex justify-center items-center gap-4 mt-8">
+            <Button
+              variant="outlined"
+              disabled={currentPage === 1 || loading}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outlined"
+              disabled={currentPage === totalPages || loading}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+            >
+              Next
+            </Button>
           </div>
         )}
       </div>
