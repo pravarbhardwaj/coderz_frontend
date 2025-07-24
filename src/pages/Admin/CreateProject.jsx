@@ -77,7 +77,10 @@ export default function CreateProject({
     if (!file) return;
 
     const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png"];
-    const allowedPdfTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.presentationml.presentation"];
+    const allowedPdfTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ];
 
     if (fieldName === "thumbnail") {
       if (!allowedImageTypes.includes(file.type)) {
