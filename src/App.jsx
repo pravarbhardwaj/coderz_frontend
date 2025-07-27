@@ -8,6 +8,7 @@ import {
   ListCheck,
   Shapes,
   BookOpenText,
+  LayoutDashboard,
 } from "lucide-react";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import {
@@ -33,6 +34,7 @@ import StudentLogin from "./pages/Student/StudentLogin";
 import Learn from "./pages/Student/Learn";
 import Quizzes from "./pages/Student/Quizzes";
 import Practice from "./pages/Student/Practice";
+import Dashbaord from "./pages/Teacher/Dashboard";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -100,9 +102,12 @@ function App() {
 
             {userRole == "Teacher" && (
               <>
+
                 <SidebarItem icon={<Book size={20} />} text="Teach Content" />
 
                 <SidebarItem icon={<Shapes size={20} />} text="Projects" />
+                <SidebarItem icon={<LayoutDashboard size={20} />} text="Dashboard" />
+
 
                 <SidebarItem
                   icon={<ListCheck size={20} />}
@@ -285,6 +290,16 @@ function App() {
                 </div>
               }
               path="/projectreview"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<Dashbaord />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="/dashboard"
             />
             <Route
               element={

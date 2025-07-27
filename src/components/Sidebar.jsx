@@ -42,6 +42,8 @@ const activeMapper = {
   "School Details": "/schooldetails",
 
   "Project Review": "/projectreview",
+
+  Dashboard: "/dashboard"
 };
 
 const handleLogout = (navigate) => {
