@@ -17,6 +17,7 @@ import CreateProject from "../../pages/Admin/CreateProject";
 import CreateSession from "../../pages/Admin/SchoolDetails/CreateSession";
 import AssetUploadForm from "../../components/AssetUploadForm";
 import QuizForm from "../../components/QuizForm";
+import Loading from "../../components/Loading";
 
 function Project({ myProject }) {
   const [title, setTitle] = useState("");
@@ -64,6 +65,7 @@ function Project({ myProject }) {
 
   const handleChange = (value) => {
     setDropdown(value.target.value);
+    setCurrentPage(1)
   };
 
   const handleOpen = (proj) => {
@@ -256,10 +258,10 @@ function Project({ myProject }) {
   };
 
   const getTeacherProjects = async () => {
-    let url = "projects/teacher/projects/";
+    let url = "projects/teacher/projects/?page=" + currentPage;
 
     if (dropdown != "All") {
-      url += `?group_id=${dropdown}`;
+      url += `&group_id=${dropdown}`;
     }
     const response = await getAPI(navigation, url);
 
@@ -281,8 +283,10 @@ function Project({ myProject }) {
 
   const getStudentProjects = async () => {
     let response = null;
-    response = await getAPI(navigation, "projects/student/projects/");
-    setProjectData(response);
+    response = await getAPI(navigation, "projects/student/projects/?page=" + currentPage);
+    setProjectData(response?.results);
+    setProjectData(response?.results);
+    setTotalPages(response.total_pages || 1);
   };
 
   const fetchCardData = async () => {
@@ -361,9 +365,7 @@ function Project({ myProject }) {
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-gray-600 text-2xl">
-            Loading projects...
-          </div>
+          <Loading />
         ) : projectData.length === 0 ? ( // NEW
           <div className="text-center py-10 text-gray-600 text-2xl">
             No Projects Assigned

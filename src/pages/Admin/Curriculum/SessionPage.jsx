@@ -3,7 +3,7 @@ import PPTViewer from "../../../components/PPTViewer";
 import SelectionTab from "../../../components/SelectionTab";
 import { Loader2, MoveLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { getAPI } from "../../../request/APIManager";
+import { getAPI, postAPI } from "../../../request/APIManager";
 import {
   Box,
   FormControl,
@@ -41,6 +41,34 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
   const tabs = ["Overview", "Session PPT"];
   const [submittedQuiz, setSubmittedQuiz] = useState(data?.submitted_quizzes ?? [])
 
+  const sendActivity = async (paper) => {
+    const payload = {
+      "UserId": localStorage.getItem('user_id'),
+      "location_id": "",
+      "group_id": "",
+      "quest_id": "reflective",
+      "content_id": "reflective",
+      "content_type_code": "8",
+      "access_count": 1,
+      "total_access_duration": 0.0,
+      "first_access_duration": 0.0,
+      "points": 0.0
+    }
+    try {
+      const response = await postAPI(navigator, '/accounts/mission-activity/', payload)
+    }
+    catch (err) {
+      console.log("Error: ", err)
+    }
+  }
+
+  useEffect(() => {
+    console.log("hiiiiiii")
+    if (submittedQuiz.length == 0 && selectedTab == "Reflectives") {
+      sendActivity(data)
+    }
+  }, [selectedTab])
+
   useEffect(() => {
   }, [submittedQuiz])
   if (data.quizzes.length > 0) {
@@ -59,22 +87,22 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
   const getSessionData = async () => {
     try {
       setLoader(true);
-    const response = await getAPI(
-      navigation,
-      `projects/project-sessions/?project_id=${projectId}`
-    );
-    if (response && response.length > 0) {
-      setSessionData([...response]);
-      setDropdown(response[0].id);
-      setSelectedSession(response[0]);
-    }
-    setLoader(false);
+      const response = await getAPI(
+        navigation,
+        `projects/project-sessions/?project_id=${projectId}`
+      );
+      if (response && response.length > 0) {
+        setSessionData([...response]);
+        setDropdown(response[0].id);
+        setSelectedSession(response[0]);
+      }
+      setLoader(false);
 
-  }
-  catch (error) {
-    setLoader(false);
-    console.log("Error fetching session data:", error);
-  };
+    }
+    catch (error) {
+      setLoader(false);
+      console.log("Error fetching session data:", error);
+    };
   }
 
   useEffect(() => {
@@ -88,7 +116,7 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
   };
 
   if (loader) {
-    return (  
+    return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="animate-spin text-blue-600 w-12 h-12" />
       </div>
@@ -146,7 +174,7 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
               ))}
             </Select>
           </FormControl>
-         {localStorage.getItem("role") != "Learner" && <div className="ml-auto">
+          {localStorage.getItem("role") != "Learner" && <div className="ml-auto">
             <button
               className="w-full bg-blue-600 text-white py-2 px-2 rounded-lg hover:bg-blue-700 transition"
               onClick={() => {
@@ -172,11 +200,11 @@ function SessionPage({ setSession, data, navigation, projectId, getStudentProjec
       {selectedTab === "Session PPT" && <PPT data={selectedSession} />}
       {selectedTab === "Overview" && <Overview data={selectedSession} />}
       {selectedTab === "Reflectives" &&
-        ( submittedQuiz.length != 0 && localStorage.getItem("role") === "Learner" ? (
-          <SubmittedQuizAnswers submittedQuizzes={submittedQuiz}  />
+        (submittedQuiz.length != 0 && localStorage.getItem("role") === "Learner" ? (
+          <SubmittedQuizAnswers submittedQuizzes={submittedQuiz} />
 
         ) : (
-          <Quiz quizData={data.quizzes} getStudentProjects={getStudentProjects} setSubmitedQuiz={setSubmittedQuiz}/>
+          <Quiz quizData={data.quizzes} getStudentProjects={getStudentProjects} setSubmitedQuiz={setSubmittedQuiz} />
 
         ))}
 

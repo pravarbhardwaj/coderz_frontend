@@ -3,6 +3,7 @@ import axios from "axios";
 import classNames from "classnames";
 import { useNavigate } from "react-router-dom";
 import PdfSwiperModal from "../components/PdfSwiperModal";
+import Loading from "../components/Loading";
 
 const Content = () => {
   const [activeTab, setActiveTab] = useState("pdfs");
@@ -65,9 +66,7 @@ const Content = () => {
       />
 
       {loading ? (
-        <div className="text-center text-gray-500 py-10 text-2xl">
-          Loading...
-        </div>
+        <Loading />
       ) : error ? (
         <div className="text-center text-red-500 py-10">{error}</div>
       ) : (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getCurrentUserDetails, redirectLogin } from '../../request/APIManager'
 import { useNavigate, useParams } from 'react-router-dom';
+import Loading from '../../components/Loading';
 
 
 function StudentLogin({setUserRole}) {
@@ -26,7 +27,14 @@ useEffect(() => {
     login()
 }, [])
   return (
-    <div>{authStatus ? "Logging in..." : "Authentication Failed!"}</div>
+    <div className="flex items-center justify-center h-screen bg-gray-50">
+  {authStatus ? (
+   <Loading login={true} />
+  ) : (
+    <div className="text-2xl text-red-600 font-semibold">Authentication Failed!</div>
+  )}
+</div>
+
   )
 }
 

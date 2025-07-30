@@ -3,8 +3,9 @@ import React from 'react'
 function SelectionTab({selectedTab, setSelectedTab, tabs}) {
   return (
     <div><div className="flex mt-2">
-        {tabs.map((tab) => (
+        {tabs.map((tab, index) => (
             <div
+            key={index}
             className={`rounded-t-md justify-center flex border-b-2 border-custom-blue ${
               selectedTab == tab
                 ? "bg-custom-orange-dark "

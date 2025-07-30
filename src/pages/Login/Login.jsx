@@ -13,15 +13,28 @@ const Login = ({ setUserRole }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     const response = await loginApi(email, password, setUserRole);
     if (response) {
       setLoginError(false);
+  
       const quest = await getCurrentUserDetails();
       if (!quest) {
         setLoginError(true);
-
         return;
       }
+  
+      // ✅ Store login time for tracking
+      const loginTime = new Date().toISOString();
+      localStorage.setItem("loginTime", loginTime);
+  
+      // Optional: clean up any lingering tab sessions (if needed)
+      const sessionKey = "activeTabs";
+      const tabList = JSON.parse(localStorage.getItem(sessionKey) || "[]");
+      const cleanedTabList = [...new Set(tabList)]; // remove dupes
+      localStorage.setItem(sessionKey, JSON.stringify(cleanedTabList));
+  
+      // ✅ Redirect
       navigate("/");
     } else {
       setLoginError(true);

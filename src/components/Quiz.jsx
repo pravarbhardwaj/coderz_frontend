@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { postAPI } from "../request/APIManager";
 
 const Quiz = ({ quizData, getStudentProjects, setSubmitedQuiz }) => {
+  console.log("Quiz Data = ", quizData)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [answer, setAnswers] = useState("");

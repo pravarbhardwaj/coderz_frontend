@@ -35,6 +35,8 @@ import Learn from "./pages/Student/Learn";
 import Quizzes from "./pages/Student/Quizzes";
 import Practice from "./pages/Student/Practice";
 import Dashbaord from "./pages/Teacher/Dashboard";
+import { BASE_URL, postAPI } from "./request/APIManager";
+import axios from "axios";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -64,6 +66,87 @@ function App() {
         console.error("Error fetching version:", err);
       });
   }, []);
+
+  const sendTimeLogs = async (login_time, logout_time) => {
+    await axios.post("https://coding1.questplus.in/api/v1/accounts/log-session/",
+
+      {
+        "UserId": localStorage.getItem("user_id"),
+        "login_time": login_time,
+        "logout_time": logout_time
+      },
+      {
+        headers:
+        {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
+        }
+      }
+
+    )
+  }
+
+  React.useEffect(() => {
+    const sessionKey = "activeTabs";
+    const loginTimeKey = "loginTime";
+    const tabIdKey = "currentTabId";
+
+    // Generate unique ID for this tab
+    const tabId = crypto.randomUUID();
+    localStorage.setItem(tabIdKey, tabId);
+
+    // Register this tab
+    const existingTabs = JSON.parse(localStorage.getItem(sessionKey) || "[]");
+    const updatedTabs = [...new Set([...existingTabs, tabId])];
+    localStorage.setItem(sessionKey, JSON.stringify(updatedTabs));
+
+    // Set login time if not already present
+    if (!localStorage.getItem(loginTimeKey)) {
+      localStorage.setItem(loginTimeKey, new Date().toISOString());
+    }
+
+    const handleUnload = () => {
+      const tabList = JSON.parse(localStorage.getItem(sessionKey) || "[]");
+      const remainingTabs = tabList.filter((id) => id !== tabId);
+      localStorage.setItem(sessionKey, JSON.stringify(remainingTabs));
+      localStorage.removeItem(tabIdKey);
+
+      if (remainingTabs.length === 0) {
+        const loginTime = localStorage.getItem(loginTimeKey);
+        const logoutTime = new Date().toISOString();
+
+        if (loginTime) {
+          const payload = {
+            UserId: localStorage.getItem("user_id"),
+            login_time: loginTime,
+            logout_time: logoutTime,
+          };
+          fetch("https://coding1.questplus.in/api/v1/accounts/log-session/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("access")}`,
+            },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          });
+          // Final cleanup
+          localStorage.removeItem(loginTimeKey);
+          localStorage.removeItem(sessionKey);
+        }
+      }
+    };
+
+    // Handle tab/browser close
+    window.addEventListener("beforeunload", handleUnload);
+
+    // Also handle component unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      handleUnload();
+    };
+  }, []);
+
 
   const PrivateWrapper = () => {
     const access = localStorage.getItem("access");

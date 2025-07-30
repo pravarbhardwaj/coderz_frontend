@@ -2,6 +2,7 @@ import axios from "axios";
 import PdfSwiperModal from "../../components/PdfSwiperModal";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Loading from "../../components/Loading";
 
 const Quizzes = () => {
   const navigate = useNavigate();
@@ -80,9 +81,7 @@ const Quizzes = () => {
               )}
       <div>
         {loading ? (
-          <div className="text-center text-gray-500 py-10 text-2xl">
-            Loading...
-          </div>
+          <Loading />
         ) : error ? (
           <div className="text-center text-red-500 py-10">{error}</div>
         ) : quizzes.length === 0 ? (

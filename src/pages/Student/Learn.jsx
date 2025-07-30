@@ -1,6 +1,7 @@
 import axios from "axios";
 import PdfSwiperModal from "../../components/PdfSwiperModal";
 import React, { useEffect, useState } from "react";
+import Loading from "../../components/Loading";
 
 function Learn() {
   const [pdfName, setPdfName] = useState("");
@@ -50,9 +51,7 @@ function Learn() {
       />
       <div>
         {loading ? (
-          <div className="text-center text-gray-500 py-10 text-2xl">
-            Loading...
-          </div>
+         <Loading />
         ) : error ? (
           <div className="text-center text-red-500 py-10">{error}</div>
         ) : pdfs.length === 0 ? (

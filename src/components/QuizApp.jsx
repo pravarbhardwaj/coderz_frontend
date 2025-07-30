@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Loader2 } from 'lucide-react';
+import Loading from "./Loading";
 
 
 const QuizApp = () => {
@@ -179,7 +180,7 @@ const QuizApp = () => {
 
   const currentQuestion = questions[currentIndex];
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (loading) return <Loading />;
   if (loader) return <SubmittingQuiz />;
 
   if (error) return <div className="p-4 text-red-600">{error}</div>;

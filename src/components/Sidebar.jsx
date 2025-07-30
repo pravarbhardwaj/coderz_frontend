@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ChevronFirst, ChevronLast, MoreVertical } from "lucide-react";
 import { createContext, useContext, useState } from "react";
 import * as React from "react";
@@ -46,8 +47,35 @@ const activeMapper = {
   Dashboard: "/dashboard"
 };
 
-const handleLogout = (navigate) => {
-  localStorage.clear();
+const handleLogout = async (navigate) => {
+  const loginTime = localStorage.getItem("loginTime");
+  const logoutTime = new Date().toISOString();
+
+  if (loginTime) {
+    const payload = {
+      UserId: localStorage.getItem("user_id"),
+      login_time: loginTime,
+      logout_time: logoutTime,
+    };
+
+    try {
+      await axios.post(
+        "https://coding1.questplus.in/api/v1/accounts/log-session/",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to log session:", error);
+    }
+  }
+
+  localStorage.clear(); 
+
   navigate("/login");
 };
 

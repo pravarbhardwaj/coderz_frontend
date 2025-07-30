@@ -5,7 +5,25 @@ import { Form } from "react-router-dom";
 export const BASE_URL = "https://coding1.questplus.in/api/v1/";
 
 const handleLogout = (navigation) => {
-  localStorage.clear();
+  const sessionKey = "activeTabs";
+  const loginTime = localStorage.getItem("loginTime");
+  const logoutTime = new Date().toISOString();
+  const tabList = JSON.parse(localStorage.getItem(sessionKey) || "[]");
+  const remainingTabs = tabList.filter((id) => id !== TAB_ID);
+
+  localStorage.setItem(sessionKey, JSON.stringify(remainingTabs));
+
+  if (remainingTabs.length === 0 && loginTime) {
+    // Last tab — call API
+    fetch("/api/track-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginTime, logoutTime }),
+    });
+    localStorage.removeItem("loginTime");
+  }
+
+  localStorage.clear(); // optional — do this after cleanup
   navigation("/login", { replace: true });
 };
 
@@ -53,7 +71,7 @@ export const postAPI = async (navigation, url, payload, upload = false) => {
       handleLogout(navigation);
       return { status: "error" };
     }
-    alert(err.response.data.error);
+
     console.log("Post error - ", err.response.data.error);
 
     return false;
