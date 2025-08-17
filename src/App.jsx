@@ -9,6 +9,7 @@ import {
   Shapes,
   BookOpenText,
   LayoutDashboard,
+  CodeXml,
 } from "lucide-react";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import {
@@ -37,6 +38,7 @@ import Practice from "./pages/Student/Practice";
 import Dashbaord from "./pages/Teacher/Dashboard";
 import { BASE_URL, postAPI } from "./request/APIManager";
 import axios from "axios";
+import CodeIDE from "./components/CodeIDE";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -172,6 +174,8 @@ function App() {
                 <SidebarItem icon={<Book size={20} />} text="Learn" />
                 <SidebarItem icon={<BookOpenText size={20} />} text="Quizzes" />
                 <SidebarItem icon={<NotebookPen size={20} />} text="Practice" />
+                <SidebarItem icon={<CodeXml size={20} />} text="Coding Playground" />
+
 
                 <hr className="my-3" />
 
@@ -333,6 +337,16 @@ function App() {
                 </div>
               }
               path="/quiz-result/:id"
+            />
+            <Route
+              element={
+                <div>
+                  <PrivateWrapper />
+                  <SideBar element={<CodeIDE />} />
+                  <PrivateWrapper />
+                </div>
+              }
+              path="coding-playground"
             />
           </>
         )}

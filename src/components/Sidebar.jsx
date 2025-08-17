@@ -43,6 +43,7 @@ const activeMapper = {
   "School Details": "/schooldetails",
 
   "Project Review": "/projectreview",
+  "Coding Playground": "/coding-playground",
 
   Dashboard: "/dashboard"
 };
