@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 
 export default function CodeIDE() {
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState("python");
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [pyodide, setPyodide] = useState(null);
@@ -39,24 +39,7 @@ def input(prompt=""):
   const runCode = async () => {
     setOutput(""); // clear old output
     try {
-      if (language === "javascript") {
-        // Capture console.log
-        const originalLog = console.log;
-        let buffer = "";
-        console.log = (...args) => {
-          buffer += args.join(" ") + "\\n";
-          setOutput((prev) => prev + args.join(" ") + "\\n");
-        };
-
-        try {
-          const result = eval(code);
-          if (result !== undefined) {
-            setOutput((prev) => prev + String(result) + "\\n");
-          }
-        } finally {
-          console.log = originalLog; // restore console.log
-        }
-      } else if (language === "python") {
+      if (language === "python") {
         if (!pyodide) {
           setOutput("Loading Python runtime...");
           return;
@@ -64,9 +47,6 @@ def input(prompt=""):
         await pyodide.runPythonAsync(code);
       } else if (language === "html") {
         setOutput(code);
-      } else if (language === "css") {
-        const styleTag = `<style>${code}</style><div>CSS Applied!</div>`;
-        setOutput(styleTag);
       }
     } catch (err) {
       setOutput("Error: " + err.message);
@@ -76,30 +56,38 @@ def input(prompt=""):
   return (
     <div className="flex flex-col h-screen p-4 space-y-4">
       {/* Top bar */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center">
         {/* Language Selector */}
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
-          className="p-2 border rounded w-40"
+          className="p-2 border rounded w-auto"
         >
-          <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
-          <option value="html">HTML</option>
-          <option value="css">CSS</option>
+          <option value="html">HTML, CSS and Javascript</option>
         </select>
-
-        {/* Orientation Toggle */}
-        <button
-          onClick={() =>
-            setOrientation((prev) =>
-              prev === "horizontal" ? "vertical" : "horizontal"
-            )
-          }
-          className="p-2 bg-gray-700 text-white rounded"
-        >
-          {orientation === "horizontal" ? "↕ Vertical" : "↔ Horizontal"}
-        </button>
+        <div className="ml-auto flex gap-2">
+          {/* Orientation Toggle */}
+          <button
+            onClick={() =>
+              setOrientation((prev) =>
+                prev === "horizontal" ? "vertical" : "horizontal"
+              )
+            }
+            className="p-2 bg-gray-700 text-white rounded"
+          >
+            {orientation === "horizontal" ? "↕ Vertical" : "↔ Horizontal"}
+          </button>
+          {/* Run Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={runCode}
+              className="p-2 bg-blue-500 text-white rounded w-32"
+            >
+              Run Code
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Editor + Output */}
@@ -134,16 +122,6 @@ def input(prompt=""):
             )}
           </div>
         </div>
-      </div>
-
-      {/* Run Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={runCode}
-          className="p-2 bg-blue-500 text-white rounded w-32"
-        >
-          Run Code
-        </button>
       </div>
     </div>
   );
